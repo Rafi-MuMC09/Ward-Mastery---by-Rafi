@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- SEO -->
+  <title>Ward Mastery — Clinical Diagnosis Tool for MBBS Students</title>
+  <meta name="description" content="Ward Mastery is a free clinical diagnosis tool built for MBBS students. Weighted differential diagnosis engine, 100+ diseases, clinical examination references — all in one place." />
+  <meta name="keywords" content="MBBS ward, clinical diagnosis, differential diagnosis, DDx, medical student Bangladesh, ward rounds, clinical medicine" />
+  <meta name="author" content="Md Rafi, Mugda Medical College" />
+  <link rel="canonical" href="https://wardmastery.com/" />
+
+  <!-- Open Graph (WhatsApp / Facebook preview) -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://wardmastery.com/" />
+  <meta property="og:title" content="Ward Mastery — Clinical Diagnosis Tool for MBBS Students" />
+  <meta property="og:description" content="Free clinical DDx engine for ward rounds. 100+ diseases, weighted scoring, clinical examination references. Built by a student, for students." />
+  <meta property="og:image" content="https://wardmastery.com/og-image.png" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Ward Mastery — Clinical Diagnosis Tool" />
+  <meta name="twitter:description" content="Free DDx engine for MBBS ward rounds. 100+ diseases. Built by Md Rafi, Mugda Medical College." />
+
+  <style>
+    /* ── TOKENS ─────────────────────────────────────────── */
+    :root {
+      --navy:      #0a0f1e;
+      --navy-2:    #0d1528;
+      --navy-3:    #111e38;
+      --blue:      #1a3a6b;
+      --accent:    #2d6be4;
+      --accent-2:  #4a8ff5;
+      --teal:      #0ea5e9;
+      --glow:      rgba(45,107,228,0.18);
+      --text:      #e8edf8;
+      --text-dim:  #8fa4c8;
+      --text-faint:#4a6080;
+      --border:    rgba(45,107,228,0.2);
+      --card-bg:   rgba(17,30,56,0.7);
+      --white:     #ffffff;
+      --font-head: 'Sora', 'Inter', sans-serif;
+      --font-body: 'Inter', 'Segoe UI', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    /* ── RESET ──────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--navy);
+      color: var(--text);
+      font-family: var(--font-body);
+      font-size: 16px;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+    a { color: inherit; text-decoration: none; }
+    img { display: block; max-width: 100%; }
+
+    /* ── FONTS ──────────────────────────────────────────── */
+    @import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700;800&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+
+    /* ── NOISE TEXTURE OVERLAY ──────────────────────────── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.4;
+    }
+
+    /* ── GRID LINES (signature element) ─────────────────── */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(45,107,228,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(45,107,228,0.04) 1px, transparent 1px);
+      background-size: 48px 48px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── LAYOUT UTILITIES ───────────────────────────────── */
+    .container {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 0 24px;
+      position: relative;
+      z-index: 1;
+    }
+    .section { padding: 80px 0; }
+
+    /* ── NAV ────────────────────────────────────────────── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      background: rgba(10,15,30,0.85);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 60px;
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: var(--font-head);
+      font-weight: 700;
+      font-size: 1.05rem;
+      color: var(--white);
+      letter-spacing: -0.01em;
+    }
+    .nav-logo .stethoscope { font-size: 1.3rem; }
+    .nav-logo span { color: var(--accent-2); }
+    .nav-cta {
+      background: var(--accent);
+      color: var(--white);
+      padding: 8px 20px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      font-family: var(--font-head);
+      letter-spacing: 0.01em;
+      transition: background 0.2s;
+    }
+    .nav-cta:hover { background: var(--accent-2); }
+
+    /* ── HERO ───────────────────────────────────────────── */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      padding: 100px 0 60px;
+      position: relative;
+      overflow: hidden;
+    }
+    /* Radial glow behind hero */
+    .hero-glow {
+      position: absolute;
+      top: 10%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 700px;
+      height: 700px;
+      background: radial-gradient(ellipse at center, rgba(45,107,228,0.15) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(45,107,228,0.12);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      padding: 5px 14px;
+      font-size: 0.75rem;
+      font-family: var(--font-mono);
+      color: var(--accent-2);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 24px;
+    }
+    .hero-eyebrow::before {
+      content: '';
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--accent-2);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.8); }
+    }
+    .hero h1 {
+      font-family: var(--font-head);
+      font-size: clamp(2.4rem, 6vw, 4rem);
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -0.03em;
+      color: var(--white);
+      margin-bottom: 20px;
+    }
+    .hero h1 em {
+      font-style: normal;
+      background: linear-gradient(135deg, var(--accent-2), var(--teal));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero-sub {
+      font-size: 1.1rem;
+      color: var(--text-dim);
+      max-width: 540px;
+      margin-bottom: 40px;
+      font-weight: 400;
+      line-height: 1.7;
+    }
+    .hero-actions {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--accent);
+      color: var(--white);
+      padding: 14px 28px;
+      border-radius: 8px;
+      font-family: var(--font-head);
+      font-weight: 700;
+      font-size: 1rem;
+      letter-spacing: -0.01em;
+      transition: all 0.2s;
+      box-shadow: 0 0 30px rgba(45,107,228,0.35);
+    }
+    .btn-primary:hover {
+      background: var(--accent-2);
+      box-shadow: 0 0 40px rgba(74,143,245,0.45);
+      transform: translateY(-1px);
+    }
+    .btn-ghost {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-dim);
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+    .btn-ghost:hover { color: var(--text); }
+
+    /* ── HERO STATS ROW ─────────────────────────────────── */
+    .hero-stats {
+      display: flex;
+      gap: 40px;
+      margin-top: 60px;
+      padding-top: 40px;
+      border-top: 1px solid var(--border);
+      flex-wrap: wrap;
+    }
+    .stat-item {}
+    .stat-num {
+      font-family: var(--font-head);
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--white);
+      letter-spacing: -0.03em;
+      line-height: 1;
+    }
+    .stat-num span { color: var(--accent-2); }
+    .stat-label {
+      font-size: 0.78rem;
+      color: var(--text-faint);
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      margin-top: 4px;
+    }
+
+    /* ── HOW IT WORKS ───────────────────────────────────── */
+    .section-label {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent-2);
+      margin-bottom: 12px;
+    }
+    .section-title {
+      font-family: var(--font-head);
+      font-size: clamp(1.6rem, 3.5vw, 2.2rem);
+      font-weight: 700;
+      color: var(--white);
+      letter-spacing: -0.025em;
+      line-height: 1.2;
+      margin-bottom: 48px;
+    }
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 24px;
+    }
+    .step-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 28px 24px;
+      backdrop-filter: blur(8px);
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .step-card:hover {
+      border-color: rgba(45,107,228,0.5);
+      transform: translateY(-2px);
+    }
+    .step-num {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--accent-2);
+      letter-spacing: 0.1em;
+      margin-bottom: 14px;
+    }
+    .step-icon { font-size: 1.6rem; margin-bottom: 12px; }
+    .step-title {
+      font-family: var(--font-head);
+      font-weight: 600;
+      font-size: 1rem;
+      color: var(--white);
+      margin-bottom: 8px;
+    }
+    .step-desc {
+      font-size: 0.875rem;
+      color: var(--text-dim);
+      line-height: 1.6;
+    }
+
+    /* ── FEATURES GRID ──────────────────────────────────── */
+    .features {
+      background: var(--navy-2);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+    }
+    .feature-cell {
+      background: var(--navy-2);
+      padding: 32px 28px;
+      transition: background 0.2s;
+    }
+    .feature-cell:hover { background: var(--navy-3); }
+    .feature-icon {
+      font-size: 1.5rem;
+      margin-bottom: 16px;
+    }
+    .feature-title {
+      font-family: var(--font-head);
+      font-weight: 600;
+      font-size: 1rem;
+      color: var(--white);
+      margin-bottom: 8px;
+    }
+    .feature-desc {
+      font-size: 0.85rem;
+      color: var(--text-dim);
+      line-height: 1.65;
+    }
+    .tag {
+      display: inline-block;
+      background: rgba(45,107,228,0.12);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 2px 8px;
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      color: var(--accent-2);
+      letter-spacing: 0.06em;
+      margin-top: 10px;
+    }
+
+    /* ── FREE BANNER ────────────────────────────────────── */
+    .free-banner {
+      text-align: center;
+      padding: 70px 0;
+    }
+    .free-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(14,165,233,0.08);
+      border: 1px solid rgba(14,165,233,0.25);
+      border-radius: 100px;
+      padding: 8px 20px;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: var(--teal);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 24px;
+    }
+    .free-banner h2 {
+      font-family: var(--font-head);
+      font-size: clamp(1.6rem, 4vw, 2.4rem);
+      font-weight: 800;
+      color: var(--white);
+      letter-spacing: -0.03em;
+      margin-bottom: 14px;
+    }
+    .free-banner p {
+      color: var(--text-dim);
+      font-size: 0.95rem;
+      max-width: 420px;
+      margin: 0 auto 32px;
+    }
+
+    /* ── ABOUT ──────────────────────────────────────────── */
+    .about {
+      background: var(--navy-3);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+    .about-inner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      align-items: center;
+    }
+    .about-text {}
+    .about-text p {
+      color: var(--text-dim);
+      font-size: 0.95rem;
+      line-height: 1.75;
+      margin-bottom: 16px;
+    }
+    .about-text p strong { color: var(--text); font-weight: 600; }
+    .about-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 32px;
+      backdrop-filter: blur(8px);
+    }
+    .about-card-name {
+      font-family: var(--font-head);
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: var(--white);
+      margin-bottom: 4px;
+    }
+    .about-card-role {
+      font-size: 0.82rem;
+      color: var(--text-faint);
+      margin-bottom: 20px;
+    }
+    .about-card-quote {
+      font-size: 0.9rem;
+      color: var(--text-dim);
+      line-height: 1.7;
+      border-left: 2px solid var(--accent);
+      padding-left: 16px;
+      font-style: italic;
+      margin-bottom: 24px;
+    }
+    .about-social {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(45,107,228,0.12);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 9px 16px;
+      font-size: 0.82rem;
+      color: var(--accent-2);
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+    .about-social:hover {
+      background: rgba(45,107,228,0.22);
+      border-color: rgba(45,107,228,0.5);
+    }
+
+    /* ── CTA BOTTOM ─────────────────────────────────────── */
+    .cta-bottom {
+      text-align: center;
+      padding: 90px 0;
+      position: relative;
+    }
+    .cta-glow {
+      position: absolute;
+      bottom: 0; left: 50%;
+      transform: translateX(-50%);
+      width: 500px; height: 300px;
+      background: radial-gradient(ellipse at bottom, rgba(45,107,228,0.12) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .cta-bottom h2 {
+      font-family: var(--font-head);
+      font-size: clamp(1.8rem, 4vw, 2.6rem);
+      font-weight: 800;
+      color: var(--white);
+      letter-spacing: -0.03em;
+      margin-bottom: 14px;
+    }
+    .cta-bottom p {
+      color: var(--text-dim);
+      font-size: 0.95rem;
+      margin-bottom: 32px;
+    }
+
+    /* ── FOOTER ─────────────────────────────────────────── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 28px 0;
+    }
+    .footer-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .footer-left {
+      font-size: 0.8rem;
+      color: var(--text-faint);
+    }
+    .footer-left strong { color: var(--text-dim); }
+    .footer-right {
+      font-size: 0.78rem;
+      color: var(--text-faint);
+      font-family: var(--font-mono);
+    }
+
+    /* ── DIVIDER ────────────────────────────────────────── */
+    .divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border), transparent);
+      margin: 0;
+    }
+
+    /* ── RESPONSIVE ─────────────────────────────────────── */
+    @media (max-width: 700px) {
+      .about-inner { grid-template-columns: 1fr; gap: 32px; }
+      .hero-stats { gap: 24px; }
+      .section { padding: 60px 0; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <div class="nav-inner">
+      <div class="nav-logo">
+        <span class="stethoscope">🩺</span>
+        Ward<span>Mastery</span>
+      </div>
+      <a href="app.html" class="nav-cta">Open App →</a>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-glow"></div>
+    <div class="container">
+      <div class="hero-eyebrow">Free for MBBS Students · Bangladesh</div>
+      <h1>
+        Clinical diagnosis,<br />
+        <em>built for the ward.</em>
+      </h1>
+      <p class="hero-sub">
+        Select findings from your patient. Get a ranked differential diagnosis in seconds. Built on Abdullah's long case method — the way you actually learn in the ward.
+      </p>
+      <div class="hero-actions">
+        <a href="app.html" class="btn-primary">
+          ⚡ Open Ward Mastery
+        </a>
+        <a href="#how-it-works" class="btn-ghost">
+          See how it works ↓
+        </a>
+      </div>
+      <div class="hero-stats">
+        <div class="stat-item">
+          <div class="stat-num">100<span>+</span></div>
+          <div class="stat-label">Diseases covered</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num">8<span>+</span></div>
+          <div class="stat-label">Body systems</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num">Free</div>
+          <div class="stat-label">Always</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num">1<span>×</span></div>
+          <div class="stat-label">HTML file, works offline</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- HOW IT WORKS -->
+  <section class="section" id="how-it-works">
+    <div class="container">
+      <div class="section-label">// how it works</div>
+      <h2 class="section-title">Three steps.<br />From bedside to diagnosis.</h2>
+      <div class="steps">
+        <div class="step-card">
+          <div class="step-num">01 —</div>
+          <div class="step-icon">📋</div>
+          <div class="step-title">Select findings</div>
+          <p class="step-desc">Pick history features, general exam findings, and systemic examination signs from your patient — exactly how you'd take a long case.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-num">02 —</div>
+          <div class="step-icon">⚡</div>
+          <div class="step-title">Generate DDx</div>
+          <p class="step-desc">The weighted engine scores every finding — strong, moderate, weak — and ranks diseases by how well they fit your clinical picture.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-num">03 —</div>
+          <div class="step-icon">📚</div>
+          <div class="step-title">Review the disease</div>
+          <p class="step-desc">Open the full disease card. Symptoms, general exam, systemic exam, and management — all from Abdullah's long case references.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section class="section features" id="features">
+    <div class="container">
+      <div class="section-label">// what's inside</div>
+      <h2 class="section-title">Everything you need<br />for long cases.</h2>
+      <div class="features-grid">
+        <div class="feature-cell">
+          <div class="feature-icon">🔬</div>
+          <div class="feature-title">Weighted DDx Engine</div>
+          <p class="feature-desc">Findings carry different weights. Strong signs score more than weak ones. Negative findings penalise wrong diagnoses. It thinks like a clinician.</p>
+          <div class="tag">DDx 1 / DDx 2 / DDx 3</div>
+        </div>
+        <div class="feature-cell">
+          <div class="feature-icon">📖</div>
+          <div class="feature-title">Disease Library</div>
+          <p class="feature-desc">100+ diseases across Respiratory, CVS, GIT, Hepato, Renal, Rheumo, Neuro, Endocrine, Haematology, Dermatology, and Infectious diseases.</p>
+          <div class="tag">11 systems</div>
+        </div>
+        <div class="feature-cell">
+          <div class="feature-icon">💊</div>
+          <div class="feature-title">Management Data</div>
+          <p class="feature-desc">General measures, pharmacological treatment with doses, and key investigations — sourced from Notes and Notes for MRCP and Abdullah's references.</p>
+          <div class="tag">Drug doses included</div>
+        </div>
+        <div class="feature-cell">
+          <div class="feature-icon">🩺</div>
+          <div class="feature-title">Examination Reference</div>
+          <p class="feature-desc">Systemic examination findings per disease, structured around the way ABM Abdullah teaches long cases — inspection, palpation, percussion, auscultation.</p>
+          <div class="tag">Long case format</div>
+        </div>
+        <div class="feature-cell">
+          <div class="feature-icon">❓</div>
+          <div class="feature-title">Clinical Questions</div>
+          <p class="feature-desc">High-yield exam questions for each disease including general exam causes, structured the way examiners ask in ward finals.</p>
+          <div class="tag">Ward finals prep</div>
+        </div>
+        <div class="feature-cell">
+          <div class="feature-icon">📱</div>
+          <div class="feature-title">Mobile-First, Works Offline</div>
+          <p class="feature-desc">Open it on your phone in the ward. No app install. No internet needed after first load. One file — everything included.</p>
+          <div class="tag">No install needed</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FREE BANNER -->
+  <section class="free-banner">
+    <div class="container">
+      <div class="free-badge">✦ 100% Free</div>
+      <h2>No login. No subscription.<br />Just open and use.</h2>
+      <p>Ward Mastery is free for every MBBS student. Open it directly in your browser — works on any phone.</p>
+      <a href="app.html" class="btn-primary">Open Ward Mastery →</a>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ABOUT -->
+  <section class="section about" id="about">
+    <div class="container">
+      <div class="about-inner">
+        <div class="about-text">
+          <div class="section-label">// built by a student</div>
+          <h2 class="section-title" style="margin-bottom:24px">Made in the ward,<br />for the ward.</h2>
+          <p>Ward Mastery grew out of frustration with the gap between textbook knowledge and what actually happens at the bedside during long case presentations.</p>
+          <p>It's built around <strong>Abdullah's long case method</strong> — the same framework used in MBBS clinical teaching in Bangladesh — so everything is structured the way you already think in the ward.</p>
+          <p>Still actively developed. Every disease entry, every finding, every drug dose is reviewed against named clinical sources.</p>
+        </div>
+        <div class="about-card">
+          <div class="about-card-name">Md Rafi</div>
+          <div class="about-card-role">MBBS Student · Mugda Medical College, Dhaka</div>
+          <div class="about-card-quote">
+            "I built this because I needed it myself. If it helps even one student present a better long case, it's worth it."
+          </div>
+          <a href="https://www.facebook.com/mohammadrafi1302" target="_blank" rel="noopener" class="about-social">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+            Connect on Facebook
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA BOTTOM -->
+  <section class="cta-bottom">
+    <div class="cta-glow"></div>
+    <div class="container">
+      <h2>Ready for your next ward round?</h2>
+      <p>Open Ward Mastery on your phone right now — no install, no login.</p>
+      <a href="app.html" class="btn-primary">⚡ Open the App</a>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="container">
+      <div class="footer-inner">
+        <div class="footer-left">
+          Built by <strong>Md Rafi</strong> · Mugda Medical College ·
+          <a href="https://www.facebook.com/mohammadrafi1302" target="_blank" rel="noopener" style="color:var(--accent-2)">Facebook</a>
+        </div>
+        <div class="footer-right">wardmastery.com · v11</div>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>
