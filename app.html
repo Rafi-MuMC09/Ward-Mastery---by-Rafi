@@ -1,0 +1,1581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ward Mastery — Clinical DDx App | MBBS Ward Aid</title>
+
+<!-- SEO -->
+<meta name="description" content="Free clinical differential diagnosis tool for MBBS students. Select findings, get ranked DDx. 100+ diseases across all systems. Built on Abdullah's long case method." />
+<meta name="author" content="Md Rafi, Mugda Medical College" />
+<link rel="canonical" href="https://wardmastery.com/app.html" />
+
+<!-- Open Graph (WhatsApp / Facebook preview) -->
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://wardmastery.com/app.html" />
+<meta property="og:title" content="Ward Mastery — Clinical DDx App" />
+<meta property="og:description" content="Free differential diagnosis engine for MBBS ward rounds. 100+ diseases, weighted scoring, management data." />
+<meta property="og:image" content="https://wardmastery.com/og-image.png" />
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header>
+  <div class="logo-mark">🩺</div>
+  <div class="header-text">
+    <h1>Ward Mastery by Rafi</h1>
+    <p>Long Cases · Clinical Medicine · MBBS Ward Aid</p>
+  </div>
+  <div class="badge-count" id="totalBadge">0</div>
+</header>
+
+<div class="tabs-wrapper">
+  <div class="tabs">
+    <div class="tab active" onclick="showTab('hx',this)">
+      Presenting Problem<div class="tab-dot" id="dot-hx"></div>
+    </div>
+    <div class="tab" onclick="showTab('gpe',this)">
+      Gen. Exam<div class="tab-dot" id="dot-gpe"></div>
+    </div>
+    <div class="tab" onclick="showTab('resp',this)">
+      Resp<div class="tab-dot" id="dot-resp"></div>
+    </div>
+    <div class="tab" onclick="showTab('cvs',this)">
+      CVS<div class="tab-dot" id="dot-cvs"></div>
+    </div>
+    <div class="tab" onclick="showTab('abd',this)">
+      Abdomen<div class="tab-dot" id="dot-abd"></div>
+    </div>
+    <div class="tab" onclick="showTab('renal',this)">
+      Renal<div class="tab-dot" id="dot-renal"></div>
+    </div>
+    <div class="tab" onclick="showTab('rheum',this)">
+      Rheumo<div class="tab-dot" id="dot-rheum"></div>
+    </div>
+    <div class="tab" onclick="showTab('neuro',this)">
+      Neuro<div class="tab-dot" id="dot-neuro"></div>
+    </div>
+    <div class="tab" onclick="showTab('lib',this)">
+      📚 Disease Library
+    </div>
+    <div class="tab" onclick="showTab('questions',this)">
+      ❓ History
+    </div>
+    <div class="tab" onclick="showTab('peds',this)">
+      🧒 Pediatrics
+    </div>
+    <div class="tab" onclick="showTab('cases',this);renderCases()">
+      📁 My Cases
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ HISTORY TAB (Presenting Problem) ═══════════════ -->
+<div class="section active" id="hx">
+  <div class="sec-head">📋 Presenting Problem <span>Select all that apply</span></div>
+
+  <!-- SYMPTOM QUICK-NAV + SEARCH -->
+  <div class="hx-nav-wrap" id="hx-nav-wrap">
+    <div class="hx-search-row">
+      <input class="hx-search" id="hxSearch" type="text" 
+        placeholder="🔍  Search symptoms… (e.g. fever, swelling, cough)"
+        oninput="hxSearchFn(this.value)">
+      <button class="hx-search-clear" onclick="hxClearSearch()">✕ Clear</button>
+    </div>
+    <div class="hx-nav-chips">
+      <div class="hx-chip" onclick="hxJump('hx-fever')">🌡️ Fever</div>
+      <div class="hx-chip" onclick="hxJump('hx-cough')">🫁 Cough</div>
+      <div class="hx-chip" onclick="hxJump('hx-breath')">💨 Dyspnea</div>
+      <div class="hx-chip" onclick="hxJump('hx-chest')">❤️ Chest Pain</div>
+      <div class="hx-chip" onclick="hxJump('hx-palp')">💓 Palpitation</div>
+      <div class="hx-chip" onclick="hxJump('hx-abd')">🔴 Abd. Pain</div>
+      <div class="hx-chip" onclick="hxJump('hx-vomit')">🤢 Vomiting</div>
+      <div class="hx-chip" onclick="hxJump('hx-jaund')">🟡 Jaundice</div>
+      <div class="hx-chip" onclick="hxJump('hx-swell')">💧 Swelling</div>
+      <div class="hx-chip" onclick="hxJump('hx-urine')">🚽 Urine</div>
+      <div class="hx-chip" onclick="hxJump('hx-joint')">🦴 Joint</div>
+      <div class="hx-chip" onclick="hxJump('hx-weak')">😔 Weakness</div>
+      <div class="hx-chip" onclick="hxJump('hx-limb')">🧠 Neurology</div>
+      <div class="hx-chip" onclick="hxJump('hx-head')">🤕 Headache</div>
+      <div class="hx-chip" onclick="hxJump('hx-bowel')">🚽 Bowel</div>
+      <div class="hx-chip" onclick="hxJump('hx-weight')">⚖️ Weight</div>
+      <div class="hx-chip" onclick="hxJump('hx-skin')">🩹 Skin</div>
+      <div class="hx-chip" onclick="hxJump('hx-bleed')">🩸 Bleeding</div>
+      <div class="hx-chip" onclick="hxJump('hx-lymph')">🔵 Lymph</div>
+      <div class="hx-chip" onclick="hxJump('hx-endo')">⚗️ Endocrine</div>
+      <div class="hx-chip" onclick="hxJump('hx-vasc')">🫀 Vascular</div>
+      <div class="hx-chip" onclick="hxJump('hx-past')">📌 Past Hx</div>
+    </div>
+  </div>
+
+  <!-- Summary -->
+  <div class="summary-bar" id="summary-hx">
+    <span style="color:var(--muted);font-size:11px;">No items selected yet…</span>
+  </div>
+
+  <!-- Chief Complaints — Grouped by Symptom Cluster -->
+  <div class="group-label">Chief Complaints</div>
+
+  <!-- FEVER -->
+  <div id="hx-fever" style="font-size:10px;font-weight:700;color:#c05c00;text-transform:uppercase;letter-spacing:0.8px;margin:10px 0 5px;padding-left:2px;">🌡️ Fever</div>
+  <div class="grid-2 cat-cc" id="group-cc">
+    <button class="btn" onclick="tog(this,'cc')">Fever (>4 Days)</button>
+    <button class="btn" onclick="tog(this,'cc')">Fever (Persistent / Prolonged)</button>
+    <button class="btn" onclick="tog(this,'cc')">Fever (Low Grade, Evening Rise)</button>
+    <button class="btn" onclick="tog(this,'cc')">Fever (High Grade, Continuous)</button>
+    <button class="btn" onclick="tog(this,'cc')">Fever (Chill and Rigor)</button>
+    <button class="btn" onclick="tog(this,'cc')">Fever (High Grade + Chill and Rigor)</button>
+    <button class="btn" onclick="tog(this,'cc')">Fever (Recurrent / Intermittent)</button>
+    <button class="btn" onclick="tog(this,'cc')">Fever (Pel-Ebstein / B-symptoms)</button>
+    <button class="btn" onclick="tog(this,'cc')">Fever &gt;38.3°C for &gt;3 Weeks (PUO)</button>
+    <button class="btn" onclick="tog(this,'cc')">Fever + Chills (erythroderma)</button>
+    <button class="btn" onclick="tog(this,'cc')">Night Sweats</button>
+    <button class="btn" onclick="tog(this,'cc')">Fever (Stepwise Rising — Typhoid)</button>
+    <button class="btn" onclick="tog(this,'cc')">Fever (Paroxysmal — Rigor + Sweat)</button>
+    <button class="btn" onclick="tog(this,'cc')">Fever (Saddle-back / Biphasic — Dengue)</button>
+    <button class="btn" onclick="tog(this,'cc')">Relative Bradycardia (Fever without Tachycardia)</button>
+    <button class="btn" onclick="tog(this,'cc')">Fever (Abrupt Onset — Influenza)</button>
+  </div>
+
+  <!-- COUGH -->
+  <div id="hx-cough" style="font-size:10px;font-weight:700;color:#c05c00;text-transform:uppercase;letter-spacing:0.8px;margin:10px 0 5px;padding-left:2px;">🫁 Cough</div>
+  <div class="grid-2 cat-cc">
+    <button class="btn" onclick="tog(this,'cc')">Cough (Dry, Nocturnal)</button>
+    <button class="btn" onclick="tog(this,'cc')">Cough (Chronic &gt;3 Weeks)</button>
+    <button class="btn" onclick="tog(this,'cc')">Cough with Mucoid Sputum (&gt;3 months/yr)</button>
+    <button class="btn" onclick="tog(this,'cc')">Cough with Rusty / Purulent Sputum</button>
+    <button class="btn" onclick="tog(this,'cc')">Cough (Foul-Smelling Purulent Sputum)</button>
+    <button class="btn" onclick="tog(this,'cc')">Cough with Dark Foul-Smelling Sputum</button>
+    <button class="btn" onclick="tog(this,'cc')">Cough with Purulent Sputum (since childhood)</button>
+    <button class="btn" onclick="tog(this,'cc')">Hemoptysis</button>
+    <button class="btn" onclick="tog(this,'cc')">Seasonal Variation of Cough</button>
+    <button class="btn" onclick="tog(this,'cc')">Wheeze</button>
+  </div>
+
+  <!-- BREATHLESSNESS / DYSPNEA -->
+  <div id="hx-breath" style="font-size:10px;font-weight:700;color:#c05c00;text-transform:uppercase;letter-spacing:0.8px;margin:10px 0 5px;padding-left:2px;">💨 Breathlessness / Dyspnea</div>
+  <div class="grid-2 cat-cc">
+    <button class="btn" onclick="tog(this,'cc')">Shortness of Breath</button>
+    <button class="btn" onclick="tog(this,'cc')">Shortness of Breath on Exertion</button>
+    <button class="btn" onclick="tog(this,'cc')">Shortness of Breath (PND / Orthopnea)</button>
+    <button class="btn" onclick="tog(this,'cc')">Progressive / Increasing Breathlessness</button>
+    <button class="btn" onclick="tog(this,'cc')">Sudden Onset Severe Breathlessness</button>
+    <button class="btn" onclick="tog(this,'cc')">Severe Dyspnea on Exertion</button>
+    <button class="btn" onclick="tog(this,'cc')">Breathlessness (Cardiomyopathy)</button>
+    <button class="btn" onclick="tog(this,'cc')">Chest Tightness</button>
+  </div>
+
+  <!-- CHEST PAIN -->
+  <div id="hx-chest" style="font-size:10px;font-weight:700;color:#c05c00;text-transform:uppercase;letter-spacing:0.8px;margin:10px 0 5px;padding-left:2px;">❤️ Chest Pain</div>
+  <div class="grid-2 cat-cc">
+    <button class="btn" onclick="tog(this,'cc')">Chest Pain (Central / General)</button>
+    <button class="btn" onclick="tog(this,'cc')">Chest Pain (Pleuritic)</button>
+    <button class="btn" onclick="tog(this,'cc')">Chest Pain (Unilateral)</button>
+    <button class="btn" onclick="tog(this,'cc')">Exertional Chest Pain / Angina</button>
+    <button class="btn" onclick="tog(this,'cc')">Chest / Back Pain (Neurological)</button>
+    <button class="btn" onclick="tog(this,'cc')">Recurrent Chest Infections (childhood)</button>
+  </div>
+
+  <!-- PALPITATION / SYNCOPE -->
+  <div id="hx-palp" style="font-size:10px;font-weight:700;color:#c05c00;text-transform:uppercase;letter-spacing:0.8px;margin:10px 0 5px;padding-left:2px;">💓 Palpitation / Syncope</div>
+  <div class="grid-2 cat-cc">
+    <button class="btn" onclick="tog(this,'cc')">Palpitation</button>
+    <button class="btn" onclick="tog(this,'cc')">Palpitation (Awareness of Heartbeat)</button>
+    <button class="btn" onclick="tog(this,'cc')">Syncope / Blackout</button>
+    <button class="btn" onclick="tog(this,'cc')">Exertional Syncope</button>
+  </div>
+
+  <!-- ABDOMINAL PAIN -->
+  <div id="hx-abd" style="font-size:10px;font-weight:700;color:#c05c00;text-transform:uppercase;letter-spacing:0.8px;margin:10px 0 5px;padding-left:2px;">🔴 Abdominal Pain</div>
+  <div class="grid-2 cat-cc">
+    <button class="btn" onclick="tog(this,'cc')">Abdominal Pain (General)</button>
+    <button class="btn" onclick="tog(this,'cc')">Abdominal Pain (Colicky)</button>
+    <button class="btn" onclick="tog(this,'cc')">Epigastric Pain (Hunger Pain, Relieved by Food)</button>
+    <button class="btn" onclick="tog(this,'cc')">Epigastric Pain (Radiating to Back)</button>
+    <button class="btn" onclick="tog(this,'cc')">Nocturnal Epigastric Pain</button>
+    <button class="btn" onclick="tog(this,'cc')">Upper Abdominal Pain / Discomfort</button>
+    <button class="btn" onclick="tog(this,'cc')">Right Upper Abdominal Pain (to Right Shoulder)</button>
+    <button class="btn" onclick="tog(this,'cc')">Colicky Abdominal Pain (RIF / Umbilicus)</button>
+    <button class="btn" onclick="tog(this,'cc')">Left Lower Abdominal Pain</button>
+    <button class="btn" onclick="tog(this,'cc')">Loin Pain (Dull Ache, Bilateral)</button>
+    <button class="btn" onclick="tog(this,'cc')">Low Back Pain (Worse at Night / Morning)</button>
+    <button class="btn" onclick="tog(this,'cc')">Backache / Bone Pain</button>
+  </div>
+
+  <!-- VOMITING / NAUSEA -->
+  <div id="hx-vomit" style="font-size:10px;font-weight:700;color:#c05c00;text-transform:uppercase;letter-spacing:0.8px;margin:10px 0 5px;padding-left:2px;">🤢 Vomiting / Nausea</div>
+  <div class="grid-2 cat-cc">
+    <button class="btn" onclick="tog(this,'cc')">Vomiting / Nausea</button>
+    <button class="btn" onclick="tog(this,'cc')">Projectile Vomiting (No Bile)</button>
+    <button class="btn" onclick="tog(this,'cc')">Vomiting (Projectile, Without Nausea)</button>
+    <button class="btn" onclick="tog(this,'cc')">Heartburn / Belching</button>
+    <button class="btn" onclick="tog(this,'cc')">Hematemesis (Variceal)</button>
+  </div>
+
+  <!-- JAUNDICE / LIVER -->
+  <div id="hx-jaund" style="font-size:10px;font-weight:700;color:#c05c00;text-transform:uppercase;letter-spacing:0.8px;margin:10px 0 5px;padding-left:2px;">🟡 Jaundice</div>
+  <div class="grid-2 cat-cc">
+    <button class="btn" onclick="tog(this,'cc')">Jaundice</button>
+    <button class="btn" onclick="tog(this,'cc')">Jaundice (Progressive, Painless)</button>
+    <button class="btn" onclick="tog(this,'cc')">Jaundice (Recurrent) + Splenomegaly</button>
+    <button class="btn" onclick="tog(this,'cc')">Yellow Discoloration of Eyes / Urine</button>
+    <button class="btn" onclick="tog(this,'cc')">H/o Recurrent Jaundice (Childhood)</button>
+  </div>
+
+  <!-- ITCHING -->
+  <div id="hx-itch" style="font-size:10px;font-weight:700;color:#c05c00;text-transform:uppercase;letter-spacing:0.8px;margin:10px 0 5px;padding-left:2px;">🔆 Itching / Pruritus</div>
+  <div class="grid-2 cat-cc">
+    <button class="btn" onclick="tog(this,'cc')">Generalized Itching (Obstructive)</button>
+    <button class="btn" onclick="tog(this,'cc')">Generalized Itching (Day and Night)</button>
+    <button class="btn" onclick="tog(this,'cc')">Pruritus (Generalized)</button>
+    <button class="btn" onclick="tog(this,'cc')">Scaly Itchy Skin (Silvery Scales)</button>
+  </div>
+
+  <!-- SWELLING / EDEMA -->
+  <div id="hx-swell" style="font-size:10px;font-weight:700;color:#c05c00;text-transform:uppercase;letter-spacing:0.8px;margin:10px 0 5px;padding-left:2px;">💧 Swelling / Edema</div>
+  <div class="grid-2 cat-cc">
+    <button class="btn" onclick="tog(this,'cc')">General Swelling</button>
+    <button class="btn" onclick="tog(this,'cc')">Leg / Ankle Swelling</button>
+    <button class="btn" onclick="tog(this,'cc')">Leg Swelling / Generalized Swelling</button>
+    <button class="btn" onclick="tog(this,'cc')">Swelling of Whole Body (Anasarca)</button>
+    <button class="btn" onclick="tog(this,'cc')">Swelling / Puffiness of Face (Worse Morning)</button>
+    <button class="btn" onclick="tog(this,'cc')">Swelling of Face, Neck, Arms</button>
+    <button class="btn" onclick="tog(this,'cc')">Swelling of Face and Legs</button>
+    <button class="btn" onclick="tog(this,'cc')">Swelling of Abdomen (Ascites)</button>
+    <button class="btn" onclick="tog(this,'cc')">Abdominal Distension</button>
+    <button class="btn" onclick="tog(this,'cc')">Upper Abdominal Mass / Discomfort</button>
+    <button class="btn" onclick="tog(this,'cc')">Dragging Sensation / Mass (Left Upper Abdomen)</button>
+    <button class="btn" onclick="tog(this,'cc')">Mass in Abdomen</button>
+  </div>
+
+  <!-- URINE / RENAL -->
+  <div id="hx-urine" style="font-size:10px;font-weight:700;color:#c05c00;text-transform:uppercase;letter-spacing:0.8px;margin:10px 0 5px;padding-left:2px;">🚽 Urine / Renal</div>
+  <div class="grid-2 cat-cc">
+    <button class="btn" onclick="tog(this,'cc')">Hematuria</button>
+    <button class="btn" onclick="tog(this,'cc')">Hematuria + Leg Swelling</button>
+    <button class="btn" onclick="tog(this,'cc')">Frothy Urine</button>
+    <button class="btn" onclick="tog(this,'cc')">Smoky / High-Colored Urine</button>
+    <button class="btn" onclick="tog(this,'cc')">Dark Urine + Family History of Anemia</button>
+    <button class="btn" onclick="tog(this,'cc')">Oliguria / Scanty Micturition</button>
+    <button class="btn" onclick="tog(this,'cc')">Polyuria (Frequent Urination)</button>
+    <button class="btn" onclick="tog(this,'cc')">Nocturia + Scanty Micturition</button>
+    <button class="btn" onclick="tog(this,'cc')">Urinary Frequency</button>
+    <button class="btn" onclick="tog(this,'cc')">Dysuria</button>
+    <button class="btn" onclick="tog(this,'cc')">Inability to Void Urine (Retention)</button>
+    <button class="btn" onclick="tog(this,'cc')">Urinary Incontinence</button>
+    <button class="btn" onclick="tog(this,'cc')">Polydipsia (Excessive Thirst)</button>
+  </div>
+
+  <!-- JOINT / BONE PAIN -->
+  <div id="hx-joint" style="font-size:10px;font-weight:700;color:#c05c00;text-transform:uppercase;letter-spacing:0.8px;margin:10px 0 5px;padding-left:2px;">🦴 Joint / Bone Pain</div>
+  <div class="grid-2 cat-cc">
+    <button class="btn" onclick="tog(this,'cc')">Joint Pain / Arthralgia</button>
+    <button class="btn" onclick="tog(this,'cc')">Limb &amp; Joint Swelling</button>
+    <button class="btn" onclick="tog(this,'cc')">Pain and Swelling of Small Joints (Hands/Feet)</button>
+    <button class="btn" onclick="tog(this,'cc')">Morning Stiffness &gt;1 Hour</button>
+    <button class="btn" onclick="tog(this,'cc')">Morning Stiffness of Spine</button>
+    <button class="btn" onclick="tog(this,'cc')">Limitation of Spinal Movement</button>
+    <button class="btn" onclick="tog(this,'cc')">Migrating Polyarthritis (Large Joints)</button>
+    <button class="btn" onclick="tog(this,'cc')">Pain in Multiple Joints</button>
+    <button class="btn" onclick="tog(this,'cc')">Joint Pain and Swelling (Multiple, Child)</button>
+    <button class="btn" onclick="tog(this,'cc')">Recurrent Hemarthrosis (Knee / Elbow)</button>
+    <button class="btn" onclick="tog(this,'cc')">Cramps in Legs</button>
+    <button class="btn" onclick="tog(this,'cc')">Pain in Limbs on Use (Claudication)</button>
+  </div>
+
+  <!-- WEAKNESS / FATIGUE -->
+  <div id="hx-weak" style="font-size:10px;font-weight:700;color:#c05c00;text-transform:uppercase;letter-spacing:0.8px;margin:10px 0 5px;padding-left:2px;">😔 Weakness / Fatigue</div>
+  <div class="grid-2 cat-cc">
+    <button class="btn" onclick="tog(this,'cc')">General Weakness / Fatigue</button>
+    <button class="btn" onclick="tog(this,'cc')">Pallor / Fatigue</button>
+    <button class="btn" onclick="tog(this,'cc')">Muscle Weakness</button>
+    <button class="btn" onclick="tog(this,'cc')">Proximal Muscle Weakness (Combing / Stairs)</button>
+    <button class="btn" onclick="tog(this,'cc')">Fatigable Weakness after Activity</button>
+    <button class="btn" onclick="tog(this,'cc')">Lethargy / Increased Sleepiness</button>
+    <button class="btn" onclick="tog(this,'cc')">Weakness / Anorexia / Nausea / Vomiting</button>
+    <button class="btn" onclick="tog(this,'cc')">Weakness + Dizziness</button>
+    <button class="btn" onclick="tog(this,'cc')">Weakness + Weight Loss + Pigmentation</button>
+    <button class="btn" onclick="tog(this,'cc')">Weakness + Weight Loss + Night Sweats</button>
+  </div>
+
+  <!-- LIMB WEAKNESS / NEUROLOGICAL MOTOR -->
+  <div id="hx-limb" style="font-size:10px;font-weight:700;color:#c05c00;text-transform:uppercase;letter-spacing:0.8px;margin:10px 0 5px;padding-left:2px;">🧠 Limb Weakness / Paralysis</div>
+  <div class="grid-2 cat-cc">
+    <button class="btn" onclick="tog(this,'cc')">Progressive Weakness of Limbs</button>
+    <button class="btn" onclick="tog(this,'cc')">Progressive Weakness of Upper and Lower Limbs</button>
+    <button class="btn" onclick="tog(this,'cc')">Weakness of Both Lower Limbs</button>
+    <button class="btn" onclick="tog(this,'cc')">Ascending Weakness of Both Lower Limbs</button>
+    <button class="btn" onclick="tog(this,'cc')">Sudden Weakness of One Side (Hemiplegia)</button>
+    <button class="btn" onclick="tog(this,'cc')">Weakness (Relapsing-Remitting)</button>
+    <button class="btn" onclick="tog(this,'cc')">Inability to Walk</button>
+    <button class="btn" onclick="tog(this,'cc')">Sudden Inability to Walk</button>
+    <button class="btn" onclick="tog(this,'cc')">Difficulty Walking / Bradykinesia</button>
+    <button class="btn" onclick="tog(this,'cc')">Wasting of Muscles</button>
+    <button class="btn" onclick="tog(this,'cc')">Proximal Muscle Wasting (No Sensory Symptoms)</button>
+    <button class="btn" onclick="tog(this,'cc')">Weakness + Wasting of Leg / Foot Muscles</button>
+  </div>
+
+  <!-- HEADACHE / DIZZINESS / VISION -->
+  <div id="hx-head" style="font-size:10px;font-weight:700;color:#c05c00;text-transform:uppercase;letter-spacing:0.8px;margin:10px 0 5px;padding-left:2px;">🤕 Headache / Dizziness / Vision</div>
+  <div class="grid-2 cat-cc">
+    <button class="btn" onclick="tog(this,'cc')">Headache</button>
+    <button class="btn" onclick="tog(this,'cc')">Severe Headache (Pre-eclampsia / HTN)</button>
+    <button class="btn" onclick="tog(this,'cc')">Headache (Worse Morning, on Straining)</button>
+    <button class="btn" onclick="tog(this,'cc')">Headache (Throbbing, Frontal)</button>
+    <button class="btn" onclick="tog(this,'cc')">Headache (Worse on Bending)</button>
+    <button class="btn" onclick="tog(this,'cc')">Headache + Visual Disturbance (Vascular)</button>
+    <button class="btn" onclick="tog(this,'cc')">Vertigo / Dizziness</button>
+    <button class="btn" onclick="tog(this,'cc')">Dizziness / Giddiness</button>
+    <button class="btn" onclick="tog(this,'cc')">Visual Disturbance (Optic Neuritis)</button>
+    <button class="btn" onclick="tog(this,'cc')">Dimness of Vision</button>
+    <button class="btn" onclick="tog(this,'cc')">Double Vision</button>
+    <button class="btn" onclick="tog(this,'cc')">Drooping of Upper Eyelids (Ptosis)</button>
+    <button class="btn" onclick="tog(this,'cc')">Focal Neurological Deficit</button>
+    <button class="btn" onclick="tog(this,'cc')">Seizures</button>
+    <button class="btn" onclick="tog(this,'cc')">Facial Deviation</button>
+  </div>
+
+  <!-- TREMOR / INVOLUNTARY MOVEMENTS -->
+  <div id="hx-tremor" style="font-size:10px;font-weight:700;color:#c05c00;text-transform:uppercase;letter-spacing:0.8px;margin:10px 0 5px;padding-left:2px;">🤲 Tremor / Involuntary Movements</div>
+  <div class="grid-2 cat-cc">
+    <button class="btn" onclick="tog(this,'cc')">Tremor of Hands (Resting)</button>
+    <button class="btn" onclick="tog(this,'cc')">Tremor of Hands (Fine)</button>
+    <button class="btn" onclick="tog(this,'cc')">Involuntary Movements</button>
+    <button class="btn" onclick="tog(this,'cc')">Tremor + Involuntary Movements (Choreoathetosis)</button>
+    <button class="btn" onclick="tog(this,'cc')">Difficulty Writing / Speaking</button>
+    <button class="btn" onclick="tog(this,'cc')">Difficulty in Speech (Aphasia)</button>
+  </div>
+
+  <!-- NUMBNESS / TINGLING -->
+  <div id="hx-numb" style="font-size:10px;font-weight:700;color:#c05c00;text-transform:uppercase;letter-spacing:0.8px;margin:10px 0 5px;padding-left:2px;">⚡ Numbness / Tingling</div>
+  <div class="grid-2 cat-cc">
+    <button class="btn" onclick="tog(this,'cc')">Tingling / Numbness of Feet</button>
+    <button class="btn" onclick="tog(this,'cc')">Weakness + Numbness of Hands and Feet (Glove-Stocking)</button>
+    <button class="btn" onclick="tog(this,'cc')">Pins and Needles (Paresthesia)</button>
+    <button class="btn" onclick="tog(this,'cc')">Burning Sensation of Hands and Feet</button>
+    <button class="btn" onclick="tog(this,'cc')">Low Back Pain + Limb Tingling / Numbness</button>
+  </div>
+
+  <!-- SPEECH / SWALLOWING -->
+  <div id="hx-speech" style="font-size:10px;font-weight:700;color:#c05c00;text-transform:uppercase;letter-spacing:0.8px;margin:10px 0 5px;padding-left:2px;">🗣️ Speech / Swallowing / Voice</div>
+  <div class="grid-2 cat-cc">
+    <button class="btn" onclick="tog(this,'cc')">Dysphagia</button>
+    <button class="btn" onclick="tog(this,'cc')">Dysphagia (Plummer-Vinson)</button>
+    <button class="btn" onclick="tog(this,'cc')">Difficulty Swallowing / Speech</button>
+    <button class="btn" onclick="tog(this,'cc')">Hoarseness of Voice</button>
+    <button class="btn" onclick="tog(this,'cc')">Change in Voice (Hoarseness)</button>
+    <button class="btn" onclick="tog(this,'cc')">Difficulty Opening Mouth</button>
+  </div>
+
+  <!-- BOWEL HABIT -->
+  <div id="hx-bowel" style="font-size:10px;font-weight:700;color:#c05c00;text-transform:uppercase;letter-spacing:0.8px;margin:10px 0 5px;padding-left:2px;">🚽 Bowel Habit</div>
+  <div class="grid-2 cat-cc">
+    <button class="btn" onclick="tog(this,'cc')">Diarrhea</button>
+    <button class="btn" onclick="tog(this,'cc')">Loose Stools with Mucus / Blood</button>
+    <button class="btn" onclick="tog(this,'cc')">Chronic Diarrhea + Recurrent Infections</button>
+    <button class="btn" onclick="tog(this,'cc')">Diarrhea (Watery, Profuse — Rice Water)</button>
+    <button class="btn" onclick="tog(this,'cc')">Diarrhea + Fever + Mucus/Blood (Dysentery)</button>
+    <button class="btn" onclick="tog(this,'cc')">Constipation (Predominant — Typhoid)</button>
+    <button class="btn" onclick="tog(this,'cc')">Constipation</button>
+    <button class="btn" onclick="tog(this,'cc')">Change in Bowel Habit (Alternating)</button>
+    <button class="btn" onclick="tog(this,'cc')">Bleeding per Rectum (Fresh Blood)</button>
+    <button class="btn" onclick="tog(this,'cc')">Steatorrhea</button>
+    <button class="btn" onclick="tog(this,'cc')">Recurrent Mouth Ulcers</button>
+  </div>
+
+  <!-- WEIGHT CHANGE / APPETITE -->
+  <div id="hx-weight" style="font-size:10px;font-weight:700;color:#c05c00;text-transform:uppercase;letter-spacing:0.8px;margin:10px 0 5px;padding-left:2px;">⚖️ Weight / Appetite</div>
+  <div class="grid-2 cat-cc">
+    <button class="btn" onclick="tog(this,'cc')">Weight Loss</button>
+    <button class="btn" onclick="tog(this,'cc')">Weight Loss (Despite Good Appetite)</button>
+    <button class="btn" onclick="tog(this,'cc')">Marked Weight Loss / Anorexia</button>
+    <button class="btn" onclick="tog(this,'cc')">Weight Gain</button>
+    <button class="btn" onclick="tog(this,'cc')">Weight Gain (Progressive)</button>
+    <button class="btn" onclick="tog(this,'cc')">Excessive Weight Gain (Truncal)</button>
+    <button class="btn" onclick="tog(this,'cc')">Weight Gain + Generalized Swelling</button>
+    <button class="btn" onclick="tog(this,'cc')">Anorexia</button>
+    <button class="btn" onclick="tog(this,'cc')">Loss of Appetite + Nausea + Dizziness</button>
+    <button class="btn" onclick="tog(this,'cc')">Malaise / Weight Loss</button>
+    <button class="btn" onclick="tog(this,'cc')">Pica (Craving for Clay / Ice)</button>
+    <button class="btn" onclick="tog(this,'cc')">Failure to Thrive</button>
+  </div>
+
+  <!-- SKIN / RASH -->
+  <div id="hx-skin" style="font-size:10px;font-weight:700;color:#c05c00;text-transform:uppercase;letter-spacing:0.8px;margin:10px 0 5px;padding-left:2px;">🩹 Skin / Rash / Pigmentation</div>
+  <div class="grid-2 cat-cc">
+    <button class="btn" onclick="tog(this,'cc')">Retro-orbital Headache (Behind Eyes)</button>
+    <button class="btn" onclick="tog(this,'cc')">Severe Myalgia / Bone Pain (Breakbone Fever)</button>
+    <button class="btn" onclick="tog(this,'cc')">Maculopapular Rash (Trunk → Limbs)</button>
+    <button class="btn" onclick="tog(this,'cc')">Rose Spots on Abdomen</button>
+    <button class="btn" onclick="tog(this,'cc')">Muscle Cramps (Electrolyte Loss)</button>
+    <button class="btn" onclick="tog(this,'cc')">Travel to Endemic Area (Tropics)</button>
+    <button class="btn" onclick="tog(this,'cc')">Skin Rash (Butterfly / Malar)</button>
+    <button class="btn" onclick="tog(this,'cc')">Skin Rash (Face, Trunk, Hands)</button>
+    <button class="btn" onclick="tog(this,'cc')">Skin Patches (Hypopigmented) + Numbness</button>
+    <button class="btn" onclick="tog(this,'cc')">Skin Thickening and Tightening (Hands / Face)</button>
+    <button class="btn" onclick="tog(this,'cc')">Skin Erosions + Oral Ulcers</button>
+    <button class="btn" onclick="tog(this,'cc')">Painful Blistering (Skin + Mucous Membranes)</button>
+    <button class="btn" onclick="tog(this,'cc')">Generalized Skin Redness and Scaling (&gt;90% BSA)</button>
+    <button class="btn" onclick="tog(this,'cc')">Scaly Skin (Silvery Scales)</button>
+    <button class="btn" onclick="tog(this,'cc')">Nail Changes + Joint Pain (Psoriatic)</button>
+    <button class="btn" onclick="tog(this,'cc')">Generalized Pigmentation</button>
+    <button class="btn" onclick="tog(this,'cc')">Skin Darkening (Generalized)</button>
+    <button class="btn" onclick="tog(this,'cc')">Thickening of Earlobes and Face</button>
+    <button class="btn" onclick="tog(this,'cc')">Loss of Eyebrows (Madarosis)</button>
+    <button class="btn" onclick="tog(this,'cc')">Bleeding Spots on Skin / Bruising</button>
+    <button class="btn" onclick="tog(this,'cc')">Petechiae / Purpura on Skin</button>
+    <button class="btn" onclick="tog(this,'cc')">Raynaud's Phenomenon (Fingers)</button>
+  </div>
+
+  <!-- BLEEDING -->
+  <div id="hx-bleed" style="font-size:10px;font-weight:700;color:#c05c00;text-transform:uppercase;letter-spacing:0.8px;margin:10px 0 5px;padding-left:2px;">🩸 Bleeding</div>
+  <div class="grid-2 cat-cc">
+    <button class="btn" onclick="tog(this,'cc')">Bleeding Manifestations (Purpura / Epistaxis / Gums)</button>
+    <button class="btn" onclick="tog(this,'cc')">Epistaxis / Gum Bleeding</button>
+    <button class="btn" onclick="tog(this,'cc')">Amenorrhea</button>
+    <button class="btn" onclick="tog(this,'cc')">Recurrent Joint Bleeding (Hemarthrosis)</button>
+    <button class="btn" onclick="tog(this,'cc')">Prolonged Bleeding after Minor Injury / Surgery</button>
+    <button class="btn" onclick="tog(this,'cc')">Muscle Hematomas</button>
+    <button class="btn" onclick="tog(this,'cc')">Changing Murmur (SBE)</button>
+  </div>
+
+  <!-- LYMPH NODES -->
+  <div id="hx-lymph" style="font-size:10px;font-weight:700;color:#c05c00;text-transform:uppercase;letter-spacing:0.8px;margin:10px 0 5px;padding-left:2px;">🔵 Lymph Nodes</div>
+  <div class="grid-2 cat-cc">
+    <button class="btn" onclick="tog(this,'cc')">Generalized Lymph Node Swelling</button>
+    <button class="btn" onclick="tog(this,'cc')">Painless Lymph Node Enlargement</button>
+    <button class="btn" onclick="tog(this,'cc')">Lymphadenopathy (Generalized)</button>
+  </div>
+
+  <!-- ENDOCRINE / METABOLIC -->
+  <div id="hx-endo" style="font-size:10px;font-weight:700;color:#c05c00;text-transform:uppercase;letter-spacing:0.8px;margin:10px 0 5px;padding-left:2px;">⚗️ Endocrine / Metabolic</div>
+  <div class="grid-2 cat-cc">
+    <button class="btn" onclick="tog(this,'cc')">Cold Intolerance</button>
+    <button class="btn" onclick="tog(this,'cc')">Heat Intolerance / Sweating</button>
+    <button class="btn" onclick="tog(this,'cc')">Excessive Sweating</button>
+    <button class="btn" onclick="tog(this,'cc')">Poor Memory / Lack of Concentration</button>
+    <button class="btn" onclick="tog(this,'cc')">Anxiety / Irritability</button>
+    <button class="btn" onclick="tog(this,'cc')">Menorrhagia</button>
+    <button class="btn" onclick="tog(this,'cc')">Menstrual Irregularities</button>
+    <button class="btn" onclick="tog(this,'cc')">Amenorrhea</button>
+    <button class="btn" onclick="tog(this,'cc')">Currently Pregnant / Antenatal</button>
+    <button class="btn" onclick="tog(this,'cc')">Headache + Visual Disturbance (Pregnancy)</button>
+    <button class="btn" onclick="tog(this,'cc')">Oedema of Face and Hands (Pregnancy)</button>
+    <button class="btn" onclick="tog(this,'cc')">Epigastric Pain (RUQ) in Pregnancy</button>
+    <button class="btn" onclick="tog(this,'cc')">Failure to Breastfeed Postpartum</button>
+    <button class="btn" onclick="tog(this,'cc')">Progressive Enlargement of Hands / Feet / Face</button>
+    <button class="btn" onclick="tog(this,'cc')">Short Height since Childhood</button>
+    <button class="btn" onclick="tog(this,'cc')">Poor Growth Compared to Peers</button>
+    <button class="btn" onclick="tog(this,'cc')">Cyanosis since Birth / Infancy</button>
+    <button class="btn" onclick="tog(this,'cc')">Squatting Spells</button>
+  </div>
+
+  <!-- VASCULAR -->
+  <div id="hx-vasc" style="font-size:10px;font-weight:700;color:#c05c00;text-transform:uppercase;letter-spacing:0.8px;margin:10px 0 5px;padding-left:2px;">🫀 Vascular</div>
+  <div class="grid-2 cat-cc">
+    <button class="btn" onclick="tog(this,'cc')">Absent or Asymmetric Pulses</button>
+    <button class="btn" onclick="tog(this,'cc')">Pain in Limbs on Use (Claudication)</button>
+    <button class="btn" onclick="tog(this,'cc')">Excessive Sweating + Bone Pain</button>
+  </div>
+
+  <!-- PRECEDING / ASSOCIATED HISTORY -->
+  <div id="hx-past" style="font-size:10px;font-weight:700;color:#c05c00;text-transform:uppercase;letter-spacing:0.8px;margin:10px 0 5px;padding-left:2px;">📌 Preceding / Associated History</div>
+  <div class="grid-2 cat-cc">
+    <button class="btn" onclick="tog(this,'cc')">Sore Throat (2–4 Weeks Prior)</button>
+    <button class="btn" onclick="tog(this,'cc')">Sore Throat (2–3 Weeks Prior)</button>
+    <button class="btn" onclick="tog(this,'cc')">H/o Recent Respiratory Infection (1–2 Wks Prior)</button>
+    <button class="btn" onclick="tog(this,'cc')">Recurrent Infections / Fever</button>
+    <button class="btn" onclick="tog(this,'cc')">Oral Ulcers</button>
+    <button class="btn" onclick="tog(this,'cc')">Hair Loss + Weight Loss</button>
+    <button class="btn" onclick="tog(this,'cc')">Seasonal Variation of Symptoms</button>
+    <button class="btn" onclick="tog(this,'cc')">Prolonged Fever (Months) + Progressive Weight Loss</button>
+    <button class="btn" onclick="tog(this,'cc')">Retro-Orbital Headache (Dengue)</button>
+    <button class="btn" onclick="tog(this,'cc')">Facial Flushing</button>
+    <button class="btn" onclick="tog(this,'cc')">Profound Fatigue / Malaise</button>
+    <button class="btn" onclick="tog(this,'cc')">Myalgia / Body Ache</button>
+    <button class="btn" onclick="tog(this,'cc')">Sore Throat / Coryza</button>
+    <button class="btn" onclick="tog(this,'cc')">No Fever (Cholera)</button>
+    <button class="btn" onclick="tog(this,'cc')">Rice Water Diarrhea (Cholera)</button>
+    <button class="btn" onclick="tog(this,'cc')">Profuse Vomiting</button>
+    <button class="btn" onclick="tog(this,'cc')">Muscle Cramps (Cholera / Electrolyte)</button>
+    <button class="btn" onclick="tog(this,'cc')">Jaundice (Haemolytic — Malaria)</button>
+    <button class="btn" onclick="tog(this,'cc')">Hoarse Voice (Severe Dehydration)</button>
+    <button class="btn" onclick="tog(this,'cc')">Breathlessness (Exertional)</button>
+    <button class="btn" onclick="tog(this,'cc')">Cough (Dry / Non-productive)</button>
+  </div>
+
+  <hr class="divider">
+
+  <!-- HPI Features — Organised by Abdullah OD PARA -->
+  <div class="group-label">History of Present Illness</div>
+  <div style="font-size:10px;color:var(--muted);margin-bottom:10px;padding:6px 8px;background:var(--surface);border-radius:6px;border-left:3px solid var(--warn);">
+    📖 <strong>Abdullah's mnemonic — OD PARA:</strong> Onset · Duration · Progression · Aggravating factors · Relieving factors · Anything else (Associated features)
+  </div>
+
+  <!-- 1. ONSET -->
+  <div style="font-size:11px;font-weight:700;color:var(--warn);text-transform:uppercase;letter-spacing:0.8px;margin:12px 0 6px;padding-left:2px;">① Onset</div>
+  <div class="grid-2 cat-cc" id="group-hpi-onset">
+    <button class="btn" onclick="tog(this,'hpi')">Onset: Sudden / Acute</button>
+    <button class="btn" onclick="tog(this,'hpi')">Onset: Gradual / Insidious</button>
+    <button class="btn" onclick="tog(this,'hpi')">Onset: Sub-acute (days–weeks)</button>
+    <button class="btn" onclick="tog(this,'hpi')">Onset: After exertion / activity</button>
+    <button class="btn" onclick="tog(this,'hpi')">Onset: Nocturnal (at night)</button>
+    <button class="btn" onclick="tog(this,'hpi')">Onset: After a meal</button>
+    <button class="btn" onclick="tog(this,'hpi')">Onset: After trauma / injury</button>
+    <button class="btn" onclick="tog(this,'hpi')">Onset: After respiratory infection</button>
+    <button class="btn" onclick="tog(this,'hpi')">Onset: Following sore throat (2–4 wks)</button>
+    <button class="btn" onclick="tog(this,'hpi')">Onset: After surgery / procedure</button>
+    <button class="btn" onclick="tog(this,'hpi')">Onset: Spontaneous / No trigger</button>
+    <button class="btn" onclick="tog(this,'hpi')">Onset: Seasonal (spring / winter)</button>
+  </div>
+
+  <!-- 2. DURATION -->
+  <div style="font-size:11px;font-weight:700;color:var(--warn);text-transform:uppercase;letter-spacing:0.8px;margin:14px 0 6px;padding-left:2px;">② Duration</div>
+  <div class="grid-2 cat-cc" id="group-hpi-dur">
+    <button class="btn" onclick="tog(this,'hpi')">Duration: Hours (&lt;24 hrs)</button>
+    <button class="btn" onclick="tog(this,'hpi')">Duration: Few days (1–7 days)</button>
+    <button class="btn" onclick="tog(this,'hpi')">Duration: Weeks (1–4 weeks)</button>
+    <button class="btn" onclick="tog(this,'hpi')">Duration: Months (1–6 months)</button>
+    <button class="btn" onclick="tog(this,'hpi')">Duration: Years (&gt;1 year)</button>
+    <button class="btn" onclick="tog(this,'hpi')">Duration: Since childhood</button>
+    <button class="btn" onclick="tog(this,'hpi')">Episodic / Recurrent (comes and goes)</button>
+    <button class="btn" onclick="tog(this,'hpi')">Continuous / Persistent (no relief)</button>
+    <button class="btn" onclick="tog(this,'hpi')">Intermittent (better and worse periods)</button>
+    <button class="btn" onclick="tog(this,'hpi')">Pain &lt;30 min (angina pattern)</button>
+    <button class="btn" onclick="tog(this,'hpi')">Pain &gt;30 min (MI / severe)</button>
+    <button class="btn" onclick="tog(this,'hpi')">Paroxysmal (sudden brief attacks)</button>
+  </div>
+
+  <!-- 3. INTENSITY / SEVERITY -->
+  <div style="font-size:11px;font-weight:700;color:var(--warn);text-transform:uppercase;letter-spacing:0.8px;margin:14px 0 6px;padding-left:2px;">③ Intensity / Severity</div>
+  <div class="grid-2 cat-cc" id="group-hpi-int">
+    <button class="btn" onclick="tog(this,'hpi')">Mild (does not disturb daily life)</button>
+    <button class="btn" onclick="tog(this,'hpi')">Moderate (limits daily activity)</button>
+    <button class="btn" onclick="tog(this,'hpi')">Severe (bedridden / incapacitating)</button>
+    <button class="btn" onclick="tog(this,'hpi')">Very Severe (worst pain ever felt)</button>
+    <button class="btn" onclick="tog(this,'hpi')">Character: Dull aching / boring</button>
+    <button class="btn" onclick="tog(this,'hpi')">Character: Burning / heartburn</button>
+    <button class="btn" onclick="tog(this,'hpi')">Character: Colicky / gripping / cramping</button>
+    <button class="btn" onclick="tog(this,'hpi')">Character: Crushing / compressing / squeezing</button>
+    <button class="btn" onclick="tog(this,'hpi')">Character: Sharp / stabbing / pricking</button>
+    <button class="btn" onclick="tog(this,'hpi')">Character: Tearing / splitting</button>
+    <button class="btn" onclick="tog(this,'hpi')">Character: Throbbing / pulsating</button>
+    <button class="btn" onclick="tog(this,'hpi')">Character: Tightness / pressure / heaviness</button>
+    <button class="btn" onclick="tog(this,'hpi')">Radiation: To back (pancreatitis / aorta)</button>
+    <button class="btn" onclick="tog(this,'hpi')">Radiation: Loin to groin (renal colic)</button>
+    <button class="btn" onclick="tog(this,'hpi')">Radiation: To left arm / jaw (MI / angina)</button>
+    <button class="btn" onclick="tog(this,'hpi')">Radiation: To right shoulder (cholecystitis)</button>
+    <button class="btn" onclick="tog(this,'hpi')">Radiation: To neck (aortic stenosis murmur)</button>
+    <button class="btn" onclick="tog(this,'hpi')">Radiation: To axilla (mitral regurgitation)</button>
+  </div>
+
+  <!-- 4. PROGRESSION -->
+  <div style="font-size:11px;font-weight:700;color:var(--warn);text-transform:uppercase;letter-spacing:0.8px;margin:14px 0 6px;padding-left:2px;">④ Progression</div>
+  <div class="grid-2 cat-cc" id="group-hpi-prog">
+    <button class="btn" onclick="tog(this,'hpi')">Progressive / Getting worse</button>
+    <button class="btn" onclick="tog(this,'hpi')">Static / Not changing</button>
+    <button class="btn" onclick="tog(this,'hpi')">Improving / Getting better</button>
+    <button class="btn" onclick="tog(this,'hpi')">Relapsing-remitting (MS pattern)</button>
+    <button class="btn" onclick="tog(this,'hpi')">Stepwise deterioration</button>
+    <button class="btn" onclick="tog(this,'hpi')">Rapid deterioration (days)</button>
+    <button class="btn" onclick="tog(this,'hpi')">Slow / Gradual deterioration (months–years)</button>
+    <button class="btn" onclick="tog(this,'hpi')">Dyspnea: Now at rest (worst)</button>
+    <button class="btn" onclick="tog(this,'hpi')">Dyspnea: Only on heavy exertion</button>
+    <button class="btn" onclick="tog(this,'hpi')">Dyspnea: On mild exertion / climbing stairs</button>
+    <button class="btn" onclick="tog(this,'hpi')">Dyspnea: Orthopnea — pillows increasing</button>
+    <button class="btn" onclick="tog(this,'hpi')">Weakness: Ascending (GBS pattern)</button>
+    <button class="btn" onclick="tog(this,'hpi')">Weakness: Proximal → distal progression</button>
+    <button class="btn" onclick="tog(this,'hpi')">Weakness: Fatigable (worse with activity)</button>
+    <button class="btn" onclick="tog(this,'hpi')">Jaundice: Deepening progressively</button>
+    <button class="btn" onclick="tog(this,'hpi')">Swelling: Increasing in size / area</button>
+  </div>
+
+  <!-- 5. AGGRAVATING FACTORS -->
+  <div style="font-size:11px;font-weight:700;color:var(--warn);text-transform:uppercase;letter-spacing:0.8px;margin:14px 0 6px;padding-left:2px;">⑤ Aggravating Factors</div>
+  <div class="grid-2 cat-cc" id="group-hpi-agg">
+    <button class="btn" onclick="tog(this,'hpi')">Aggravated by: Exertion / Activity</button>
+    <button class="btn" onclick="tog(this,'hpi')">Aggravated by: Lying flat (supine)</button>
+    <button class="btn" onclick="tog(this,'hpi')">Aggravated by: Deep breathing / Coughing</button>
+    <button class="btn" onclick="tog(this,'hpi')">Aggravated by: Change of posture / Movement</button>
+    <button class="btn" onclick="tog(this,'hpi')">Aggravated by: Empty stomach / Hunger</button>
+    <button class="btn" onclick="tog(this,'hpi')">Aggravated by: Eating / After meals</button>
+    <button class="btn" onclick="tog(this,'hpi')">Aggravated by: Fatty food</button>
+    <button class="btn" onclick="tog(this,'hpi')">Aggravated by: Alcohol</button>
+    <button class="btn" onclick="tog(this,'hpi')">Aggravated by: Smoking / NSAIDs / Steroids</button>
+    <button class="btn" onclick="tog(this,'hpi')">Aggravated by: Emotion / Stress</button>
+    <button class="btn" onclick="tog(this,'hpi')">Aggravated by: Cold weather / Cold air</button>
+    <button class="btn" onclick="tog(this,'hpi')">Aggravated by: Heat / Hot environment</button>
+    <button class="btn" onclick="tog(this,'hpi')">Aggravated by: Morning (worse on waking)</button>
+    <button class="btn" onclick="tog(this,'hpi')">Aggravated by: Night / Nocturnal</button>
+    <button class="btn" onclick="tog(this,'hpi')">Aggravated by: Standing up / Upright posture</button>
+    <button class="btn" onclick="tog(this,'hpi')">Aggravated by: Heavy meal + alcohol (pancreatitis)</button>
+    <button class="btn" onclick="tog(this,'hpi')">Aggravated by: Walking (claudication)</button>
+    <button class="btn" onclick="tog(this,'hpi')">Aggravated by: Sustained gaze / activity (MG)</button>
+    <button class="btn" onclick="tog(this,'hpi')">Aggravated by: Hot bath / heat (MS — Uhthoff's)</button>
+    <button class="btn" onclick="tog(this,'hpi')">Aggravated by: Inspiration (pleurisy)</button>
+  </div>
+
+  <!-- 6. RELIEVING FACTORS -->
+  <div style="font-size:11px;font-weight:700;color:var(--warn);text-transform:uppercase;letter-spacing:0.8px;margin:14px 0 6px;padding-left:2px;">⑥ Relieving Factors</div>
+  <div class="grid-2 cat-cc" id="group-hpi-rel">
+    <button class="btn" onclick="tog(this,'hpi')">Relieved by: Rest</button>
+    <button class="btn" onclick="tog(this,'hpi')">Relieved by: Sublingual nitrate (angina)</button>
+    <button class="btn" onclick="tog(this,'hpi')">Relieved by: Food / Antacid (DU pain)</button>
+    <button class="btn" onclick="tog(this,'hpi')">Relieved by: Vomiting (gastric outlet obstruction)</button>
+    <button class="btn" onclick="tog(this,'hpi')">Relieved by: Propped-up position / Sitting up</button>
+    <button class="btn" onclick="tog(this,'hpi')">Relieved by: Leaning forward / Bending (pericarditis)</button>
+    <button class="btn" onclick="tog(this,'hpi')">Relieved by: Mohammedans prayer position (pancreatitis)</button>
+    <button class="btn" onclick="tog(this,'hpi')">Relieved by: Squatting (Fallot's / dyspnea)</button>
+    <button class="btn" onclick="tog(this,'hpi')">Relieved by: Bronchodilator (asthma)</button>
+    <button class="btn" onclick="tog(this,'hpi')">Relieved by: Defecation / Spasmolytic</button>
+    <button class="btn" onclick="tog(this,'hpi')">Relieved by: Dark quiet room (migraine)</button>
+    <button class="btn" onclick="tog(this,'hpi')">Relieved by: Lowering arm (carpal tunnel)</button>
+    <button class="btn" onclick="tog(this,'hpi')">Relieved by: Walking (restless leg syndrome)</button>
+    <button class="btn" onclick="tog(this,'hpi')">Relieved by: Antipyretics / Paracetamol</button>
+    <button class="btn" onclick="tog(this,'hpi')">Relieved by: Nothing / No relief</button>
+    <button class="btn" onclick="tog(this,'hpi')">Partially relieved by: Bending forward (pancreatitis)</button>
+  </div>
+
+  <!-- 7. ASSOCIATED FEATURES -->
+  <div style="font-size:11px;font-weight:700;color:var(--warn);text-transform:uppercase;letter-spacing:0.8px;margin:14px 0 6px;padding-left:2px;">⑦ Associated Features</div>
+
+  <div style="font-size:10px;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:0.5px;margin:8px 0 4px;">Respiratory</div>
+  <div class="grid-2 cat-cc">
+    <button class="btn" onclick="tog(this,'hpi')">Wheezing</button>
+    <button class="btn" onclick="tog(this,'hpi')">Stridor</button>
+    <button class="btn" onclick="tog(this,'hpi')">Paroxysmal Nocturnal Dyspnea</button>
+    <button class="btn" onclick="tog(this,'hpi')">Orthopnea (pillows used)</button>
+    <button class="btn" onclick="tog(this,'hpi')">Exertional Dyspnea</button>
+    <button class="btn" onclick="tog(this,'hpi')">Sputum — Mucoid / Clear</button>
+    <button class="btn" onclick="tog(this,'hpi')">Sputum — Purulent / Greenish</button>
+    <button class="btn" onclick="tog(this,'hpi')">Sputum — Foul Smelling (lung abscess)</button>
+    <button class="btn" onclick="tog(this,'hpi')">Sputum — Rusty / Blood-tinged (pneumonia)</button>
+    <button class="btn" onclick="tog(this,'hpi')">Sputum — Frothy Pink (pulm. edema)</button>
+    <button class="btn" onclick="tog(this,'hpi')">Profuse Expectoration (bronchiectasis)</button>
+    <button class="btn" onclick="tog(this,'hpi')">Hemoptysis — Fresh Blood</button>
+    <button class="btn" onclick="tog(this,'hpi')">Hemoptysis — Altered / Massive</button>
+    <button class="btn" onclick="tog(this,'hpi')">Seasonal Variation (asthma)</button>
+    <button class="btn" onclick="tog(this,'hpi')">Chest Pain — Pleuritic (sharp, breathing)</button>
+    <button class="btn" onclick="tog(this,'hpi')">Chest Pain — Central / Crushing</button>
+  </div>
+
+  <div style="font-size:10px;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:0.5px;margin:10px 0 4px;">Cardiovascular</div>
+  <div class="grid-2 cat-cc">
+    <button class="btn" onclick="tog(this,'hpi')">Palpitation — Rapid Regular</button>
+    <button class="btn" onclick="tog(this,'hpi')">Palpitation — Rapid Irregular</button>
+    <button class="btn" onclick="tog(this,'hpi')">Missed Beat → Followed by Heavy Beat</button>
+    <button class="btn" onclick="tog(this,'hpi')">Syncope on exertion (AS)</button>
+    <button class="btn" onclick="tog(this,'hpi')">Pre-syncope / Dizziness on standing</button>
+    <button class="btn" onclick="tog(this,'hpi')">Ankle / Leg swelling (cardiac edema)</button>
+    <button class="btn" onclick="tog(this,'hpi')">Nocturnal chest pain (LVF / coronary spasm)</button>
+    <button class="btn" onclick="tog(this,'hpi')">Sweating / Nausea with chest pain (MI)</button>
+    <button class="btn" onclick="tog(this,'hpi')">Impending death sensation (MI)</button>
+    <button class="btn" onclick="tog(this,'hpi')">Intermittent claudication (leg pain on walking)</button>
+  </div>
+
+  <div style="font-size:10px;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:0.5px;margin:10px 0 4px;">Gastrointestinal</div>
+  <div class="grid-2 cat-cc">
+    <button class="btn" onclick="tog(this,'hpi')">Nausea / Vomiting</button>
+    <button class="btn" onclick="tog(this,'hpi')">Projectile Vomiting (gastric outlet obstruction)</button>
+    <button class="btn" onclick="tog(this,'hpi')">Vomiting — Previous day's food (no bile)</button>
+    <button class="btn" onclick="tog(this,'hpi')">Hematemesis / Vomiting blood</button>
+    <button class="btn" onclick="tog(this,'hpi')">Anorexia / Loss of appetite</button>
+    <button class="btn" onclick="tog(this,'hpi')">Abdominal Distension</button>
+    <button class="btn" onclick="tog(this,'hpi')">Altered Bowel Habit (constipation ↔ diarrhea)</button>
+    <button class="btn" onclick="tog(this,'hpi')">Constipation</button>
+    <button class="btn" onclick="tog(this,'hpi')">Diarrhea — Watery</button>
+    <button class="btn" onclick="tog(this,'hpi')">Diarrhea — Bloody / Mucus</button>
+    <button class="btn" onclick="tog(this,'hpi')">Melena (black tarry stool)</button>
+    <button class="btn" onclick="tog(this,'hpi')">Fresh Blood Per Rectum</button>
+    <button class="btn" onclick="tog(this,'hpi')">Dysphagia — Solids only (mechanical)</button>
+    <button class="btn" onclick="tog(this,'hpi')">Dysphagia — Liquids + Solids (neuromuscular)</button>
+    <button class="btn" onclick="tog(this,'hpi')">Heartburn / GERD symptoms</button>
+    <button class="btn" onclick="tog(this,'hpi')">Belching / Bloating</button>
+    <button class="btn" onclick="tog(this,'hpi')">Succussion splash (heard on movement)</button>
+  </div>
+
+  <div style="font-size:10px;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:0.5px;margin:10px 0 4px;">Hepatobiliary</div>
+  <div class="grid-2 cat-cc">
+    <button class="btn" onclick="tog(this,'hpi')">Jaundice (yellow eyes / urine)</button>
+    <button class="btn" onclick="tog(this,'hpi')">Itching / Pruritus (generalized)</button>
+    <button class="btn" onclick="tog(this,'hpi')">Pale / Clay-colored Stool</button>
+    <button class="btn" onclick="tog(this,'hpi')">Dark Urine (tea/cola colored)</button>
+    <button class="btn" onclick="tog(this,'hpi')">Right upper abdominal pain (liver / GB)</button>
+    <button class="btn" onclick="tog(this,'hpi')">Pain radiating to right shoulder tip</button>
+    <button class="btn" onclick="tog(this,'hpi')">Steatorrhea (foul-smelling, floating stool)</button>
+  </div>
+
+  <div style="font-size:10px;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:0.5px;margin:10px 0 4px;">Renal / Urinary</div>
+  <div class="grid-2 cat-cc">
+    <button class="btn" onclick="tog(this,'hpi')">Hematuria — Painless</button>
+    <button class="btn" onclick="tog(this,'hpi')">Hematuria — Painful (with burning)</button>
+    <button class="btn" onclick="tog(this,'hpi')">Frothy / Foamy Urine (proteinuria)</button>
+    <button class="btn" onclick="tog(this,'hpi')">Nocturia</button>
+    <button class="btn" onclick="tog(this,'hpi')">Urinary Frequency / Urgency</button>
+    <button class="btn" onclick="tog(this,'hpi')">Dysuria / Burning micturition</button>
+    <button class="btn" onclick="tog(this,'hpi')">Oliguria / Scanty urine</button>
+    <button class="btn" onclick="tog(this,'hpi')">Polyuria / Excessive urine</button>
+    <button class="btn" onclick="tog(this,'hpi')">Loin pain (renal angle)</button>
+    <button class="btn" onclick="tog(this,'hpi')">Urinary retention</button>
+    <button class="btn" onclick="tog(this,'hpi')">Urinary incontinence</button>
+    <button class="btn" onclick="tog(this,'hpi')">Facial puffiness (worse in morning)</button>
+  </div>
+
+  <div style="font-size:10px;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:0.5px;margin:10px 0 4px;">Fever / Constitutional</div>
+  <div class="grid-2 cat-cc">
+    <button class="btn" onclick="tog(this,'hpi')">Fever — Evening Rise (TB pattern)</button>
+    <button class="btn" onclick="tog(this,'hpi')">Fever — High Grade / Continuous</button>
+    <button class="btn" onclick="tog(this,'hpi')">Fever — Hectic (chills + rigor + sweating)</button>
+    <button class="btn" onclick="tog(this,'hpi')">Fever — Intermittent / Quotidian</button>
+    <button class="btn" onclick="tog(this,'hpi')">Fever — Undulant / Pel-Ebstein (lymphoma)</button>
+    <button class="btn" onclick="tog(this,'hpi')">Night Sweats</button>
+    <button class="btn" onclick="tog(this,'hpi')">Chills and Rigors</button>
+    <button class="btn" onclick="tog(this,'hpi')">Weight Loss (significant)</button>
+    <button class="btn" onclick="tog(this,'hpi')">Excessive sweating (thyrotoxicosis)</button>
+    <button class="btn" onclick="tog(this,'hpi')">Fatigue / Weakness / Malaise</button>
+    <button class="btn" onclick="tog(this,'hpi')">Skin rash / Purpura during fever</button>
+  </div>
+
+  <div style="font-size:10px;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:0.5px;margin:10px 0 4px;">Neurological</div>
+  <div class="grid-2 cat-cc">
+    <button class="btn" onclick="tog(this,'hpi')">Headache — Throbbing</button>
+    <button class="btn" onclick="tog(this,'hpi')">Headache — Tight band (tension)</button>
+    <button class="btn" onclick="tog(this,'hpi')">Headache — Worse in morning / bending</button>
+    <button class="btn" onclick="tog(this,'hpi')">Photophobia / Phonophobia (migraine/meningitis)</button>
+    <button class="btn" onclick="tog(this,'hpi')">Tingling / Numbness (paresthesia)</button>
+    <button class="btn" onclick="tog(this,'hpi')">Muscle weakness — Proximal (myopathy)</button>
+    <button class="btn" onclick="tog(this,'hpi')">Muscle weakness — Distal (neuropathy)</button>
+    <button class="btn" onclick="tog(this,'hpi')">Pins and Needles — Glove-stocking</button>
+    <button class="btn" onclick="tog(this,'hpi')">Memory impairment / Forgetfulness</button>
+    <button class="btn" onclick="tog(this,'hpi')">Tremor — Resting (Parkinson's)</button>
+    <button class="btn" onclick="tog(this,'hpi')">Tremor — Intention (cerebellar)</button>
+    <button class="btn" onclick="tog(this,'hpi')">Difficulty in walking / Gait abnormality</button>
+    <button class="btn" onclick="tog(this,'hpi')">Difficulty in speech / Slurring</button>
+    <button class="btn" onclick="tog(this,'hpi')">Difficulty in swallowing (neurological)</button>
+    <button class="btn" onclick="tog(this,'hpi')">Double vision / Diplopia</button>
+    <button class="btn" onclick="tog(this,'hpi')">Drooping of eyelid / Ptosis</button>
+    <button class="btn" onclick="tog(this,'hpi')">Bladder / Bowel dysfunction (cord)</button>
+    <button class="btn" onclick="tog(this,'hpi')">Seizures / Fits / Blackouts</button>
+    <button class="btn" onclick="tog(this,'hpi')">Loss of consciousness</button>
+    <button class="btn" onclick="tog(this,'hpi')">Confusion / Altered behavior</button>
+  </div>
+
+  <div style="font-size:10px;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:0.5px;margin:10px 0 4px;">Endocrine / Metabolic</div>
+  <div class="grid-2 cat-cc">
+    <button class="btn" onclick="tog(this,'hpi')">Cold Intolerance (hypothyroid)</button>
+    <button class="btn" onclick="tog(this,'hpi')">Heat Intolerance (hyperthyroid)</button>
+    <button class="btn" onclick="tog(this,'hpi')">Polydipsia (excessive thirst)</button>
+    <button class="btn" onclick="tog(this,'hpi')">Polyphagia (excessive hunger)</button>
+    <button class="btn" onclick="tog(this,'hpi')">Weight Gain (hypothyroid / Cushing's)</button>
+    <button class="btn" onclick="tog(this,'hpi')">Pica (craving clay / ice — IDA)</button>
+    <button class="btn" onclick="tog(this,'hpi')">Menstrual irregularity / Amenorrhea</button>
+    <button class="btn" onclick="tog(this,'hpi')">Loss of libido / Impotence</button>
+    <button class="btn" onclick="tog(this,'hpi')">Galactorrhea (milk from breast)</button>
+    <button class="btn" onclick="tog(this,'hpi')">Excessive skin pigmentation</button>
+  </div>
+
+  <div style="font-size:10px;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:0.5px;margin:10px 0 4px;">Rheumatological</div>
+  <div class="grid-2 cat-cc">
+    <button class="btn" onclick="tog(this,'hpi')">Morning stiffness &gt;1 hour (RA)</button>
+    <button class="btn" onclick="tog(this,'hpi')">Morning stiffness of spine (AS)</button>
+    <button class="btn" onclick="tog(this,'hpi')">Joint swelling — Small joints (hands/feet)</button>
+    <button class="btn" onclick="tog(this,'hpi')">Joint swelling — Large joints (knee/ankle)</button>
+    <button class="btn" onclick="tog(this,'hpi')">Migratory / Fleeting joint pain (RF)</button>
+    <button class="btn" onclick="tog(this,'hpi')">Raynaud's phenomenon (fingers pale→blue→red)</button>
+    <button class="btn" onclick="tog(this,'hpi')">Oral ulcers (SLE / IBD)</button>
+    <button class="btn" onclick="tog(this,'hpi')">Skin rash with joint pain (SLE / psoriasis)</button>
+    <button class="btn" onclick="tog(this,'hpi')">Back pain improved by exercise (AS)</button>
+    <button class="btn" onclick="tog(this,'hpi')">Joint pain worse after activity (OA)</button>
+  </div>
+
+  <hr class="divider">
+
+  <!-- Past History -->
+  <div class="group-label">Past Medical History</div>
+  <div class="grid-2 cat-past" id="group-past">
+    <button class="btn" onclick="tog(this,'past')">Diabetes Mellitus</button>
+    <button class="btn" onclick="tog(this,'past')">Hypertension</button>
+    <button class="btn" onclick="tog(this,'past')">Hypotension</button>
+    <button class="btn" onclick="tog(this,'past')">Tuberculosis / ATT Taken</button>
+    <button class="btn" onclick="tog(this,'past')">Rheumatic Fever (childhood)</button>
+    <button class="btn" onclick="tog(this,'past')">Asthma / COPD</button>
+    <button class="btn" onclick="tog(this,'past')">Previous Hospitalization</button>
+    <button class="btn" onclick="tog(this,'past')">Renal Disease (known)</button>
+    <button class="btn" onclick="tog(this,'past')">Cardiac Disease (known)</button>
+    <button class="btn" onclick="tog(this,'past')">Thyroid Disorder</button>
+    <button class="btn" onclick="tog(this,'past')">Liver Disease / Hepatitis</button>
+    <button class="btn" onclick="tog(this,'past')">Blood Transfusion / Surgery</button>
+    <button class="btn" onclick="tog(this,'past')">Recurrent Joint Problems</button>
+    <button class="btn" onclick="tog(this,'past')">Previous Stroke / TIA</button>
+  </div>
+
+  <hr class="divider">
+
+  <!-- Drug History -->
+  <div class="group-label">Drug History</div>
+  <div class="grid-2 cat-past" id="group-drug">
+    <button class="btn" onclick="tog(this,'drug')">NSAIDs / Aspirin (chronic)</button>
+    <button class="btn" onclick="tog(this,'drug')">Steroid (oral / inhaled)</button>
+    <button class="btn" onclick="tog(this,'drug')">ACE Inhibitor (dry cough)</button>
+    <button class="btn" onclick="tog(this,'drug')">OCP / Contraceptive</button>
+    <button class="btn" onclick="tog(this,'drug')">Anticoagulant (warfarin/heparin)</button>
+    <button class="btn" onclick="tog(this,'drug')">Antihypertensive</button>
+    <button class="btn" onclick="tog(this,'drug')">Digoxin</button>
+    <button class="btn" onclick="tog(this,'drug')">Diuretic (furosemide)</button>
+    <button class="btn" onclick="tog(this,'drug')">Anti-TB Drugs</button>
+    <button class="btn" onclick="tog(this,'drug')">Chemotherapy / Radiotherapy</button>
+  </div>
+
+  <hr class="divider">
+
+  <!-- Social & Personal History -->
+  <div class="group-label">Personal / Social History</div>
+  <div class="grid-2 cat-past" id="group-social">
+    <button class="btn" onclick="tog(this,'social')">Chronic Smoker</button>
+    <button class="btn" onclick="tog(this,'social')">Alcohol Use</button>
+    <button class="btn" onclick="tog(this,'social')">Betel Nut Chewer</button>
+    <button class="btn" onclick="tog(this,'social')">IV Drug Abuse / Tattooing</button>
+    <button class="btn" onclick="tog(this,'social')">Occupational Dust Exposure</button>
+    <button class="btn" onclick="tog(this,'social')">Low Socioeconomic Status</button>
+    <button class="btn" onclick="tog(this,'social')">Family Hx — TB Contact</button>
+    <button class="btn" onclick="tog(this,'social')">Family Hx — Similar Illness</button>
+    <button class="btn" onclick="tog(this,'social')">Family Hx — Consanguinity</button>
+    <button class="btn" onclick="tog(this,'social')">Male</button>
+    <button class="btn" onclick="tog(this,'social')">Female</button>
+    <button class="btn" onclick="tog(this,'social')">Middle Aged / Elderly</button>
+    <button class="btn" onclick="tog(this,'social')">H/o Sore Throat (2–4 Weeks Prior)</button>
+    <button class="btn" onclick="tog(this,'social')">H/o Recent URTI / GI Infection</button>
+    <button class="btn" onclick="tog(this,'social')">Family Hx — Sudden Cardiac Death</button>
+    <button class="btn" onclick="tog(this,'social')">Consanguineous Parents</button>
+  </div>
+
+</div><!-- /hx -->
+
+
+<!-- ═══════════════ GENERAL EXAMINATION TAB ═══════════════ -->
+<div class="section" id="gpe">
+  <div class="sec-head">🔍 General Physical Examination <span>Select all positive findings</span></div>
+
+  <div class="note-box">
+    <strong>Abdullah's method:</strong> "A doctor must be a good observer, like a detective. Before starting, look carefully from head to foot." — General examination always precedes systemic examination.
+  </div>
+
+  <!-- Appearance -->
+  <div class="group-label">Appearance</div>
+  <div class="grid-2 cat-gen" id="group-appear">
+    <button class="btn" onclick="tog(this,'appear')">Ill / Toxic Looking</button>
+    <button class="btn" onclick="tog(this,'appear')">Well / Normal Looking</button>
+    <button class="btn" onclick="tog(this,'appear')">Anxious / Distressed</button>
+    <button class="btn" onclick="tog(this,'appear')">Depressed / Lethargic</button>
+    <button class="btn" onclick="tog(this,'appear')">Cushingoid Appearance</button>
+    <button class="btn" onclick="tog(this,'appear')">Expressionless Face (myxedema)</button>
+    <button class="btn" onclick="tog(this,'appear')">Cheerful / Alert</button>
+    <button class="btn" onclick="tog(this,'appear')">Anemic Looking</button>
+    <button class="btn" onclick="tog(this,'appear')">Flushed / Plethoric Face</button>
+    <button class="btn" onclick="tog(this,'appear')">Puffy / Oedematous Face</button>
+  </div>
+
+  <!-- Body Built -->
+  <div class="group-label">Body Built</div>
+  <div class="grid-3 cat-gen" id="group-built">
+    <button class="btn" onclick="tog(this,'built')">Average</button>
+    <button class="btn" onclick="tog(this,'built')">Obese</button>
+    <button class="btn" onclick="tog(this,'built')">Emaciated / Cachexic</button>
+    <button class="btn" onclick="tog(this,'built')">Below Average / Thin</button>
+    <button class="btn" onclick="tog(this,'built')">Tall / Marfanoid</button>
+    <button class="btn" onclick="tog(this,'built')">Short Stature</button>
+  </div>
+
+  <!-- Nutrition -->
+  <div class="group-label">Nutritional Status</div>
+  <div class="grid-3 cat-gen" id="group-nutr">
+    <button class="btn" onclick="tog(this,'nutr')">Well Nourished</button>
+    <button class="btn" onclick="tog(this,'nutr')">Poorly Nourished</button>
+    <button class="btn" onclick="tog(this,'nutr')">Normal</button>
+  </div>
+
+  <!-- Decubitus -->
+  <div class="group-label">Decubitus (Position in Bed)</div>
+  <div class="grid-2 cat-gen" id="group-decu">
+    <button class="btn" onclick="tog(this,'decu')">On Choice (comfortable)</button>
+    <button class="btn" onclick="tog(this,'decu')">Propped Up (orthopnea)</button>
+    <button class="btn" onclick="tog(this,'decu')">Mohammedan's Prayer Position</button>
+    <button class="btn" onclick="tog(this,'decu')">One-Sided / Lateral</button>
+    <button class="btn" onclick="tog(this,'decu')">Supine / Recumbent</button>
+    <button class="btn" onclick="tog(this,'decu')">Sitting Forward (pericardial)</button>
+  </div>
+
+  <!-- Cooperation -->
+  <div class="group-label">Cooperation</div>
+  <div class="grid-2 cat-gen" id="group-coop">
+    <button class="btn" onclick="tog(this,'coop')">Cooperative</button>
+    <button class="btn" onclick="tog(this,'coop')">Uncooperative / Confused</button>
+  </div>
+
+  <hr class="divider">
+
+  <!-- Anemia -->
+  <div class="group-label">Anemia</div>
+  <div class="grid-2 cat-gen" id="group-anemia">
+    <button class="btn" onclick="tog(this,'anemia')">Absent (No Pallor)</button>
+    <button class="btn" onclick="tog(this,'anemia')">Mild Anemia</button>
+    <button class="btn" onclick="tog(this,'anemia')">Moderate Anemia</button>
+    <button class="btn" onclick="tog(this,'anemia')">Severe Anemia</button>
+  </div>
+
+  <!-- Jaundice -->
+  <div class="group-label">Jaundice</div>
+  <div class="grid-2 cat-gen" id="group-jaun">
+    <button class="btn" onclick="tog(this,'jaun')">Absent</button>
+    <button class="btn" onclick="tog(this,'jaun')">Mild Jaundice</button>
+    <button class="btn" onclick="tog(this,'jaun')">Moderate Jaundice</button>
+    <button class="btn" onclick="tog(this,'jaun')">Deep / Severe Jaundice</button>
+  </div>
+
+  <!-- Cyanosis -->
+  <div class="group-label">Cyanosis</div>
+  <div class="grid-2 cat-gen" id="group-cyan">
+    <button class="btn" onclick="tog(this,'cyan')">Absent</button>
+    <button class="btn" onclick="tog(this,'cyan')">Peripheral Cyanosis</button>
+    <button class="btn" onclick="tog(this,'cyan')">Central Cyanosis</button>
+    <button class="btn" onclick="tog(this,'cyan')">Differential Cyanosis (toes only)</button>
+  </div>
+
+  <!-- Clubbing -->
+  <div class="group-label">Clubbing</div>
+  <div class="grid-2 cat-gen" id="group-club">
+    <button class="btn" onclick="tog(this,'club')">Absent</button>
+    <button class="btn" onclick="tog(this,'club')">Early Clubbing (Grade 1)</button>
+    <button class="btn" onclick="tog(this,'club')">Drumstick Appearance (Grade 2–3)</button>
+    <button class="btn" onclick="tog(this,'club')">Parrot-Beak Appearance (Grade 4)</button>
+    <button class="btn" onclick="tog(this,'club')">Hypertrophic Osteoarthropathy</button>
+    <button class="btn" onclick="tog(this,'club')">Differential Clubbing (toes only)</button>
+  </div>
+
+  <!-- Koilonychia -->
+  <div class="group-label">Koilonychia (Nails)</div>
+  <div class="grid-2 cat-gen" id="group-koil">
+    <button class="btn" onclick="tog(this,'koil')">Absent</button>
+    <button class="btn" onclick="tog(this,'koil')">Present (Spooning of Nails)</button>
+    <button class="btn" onclick="tog(this,'koil')">Nail — Dry / Brittle / Flat</button>
+    <button class="btn" onclick="tog(this,'koil')">Thin / Thinned Nails</button>
+  </div>
+
+  <!-- Leukonychia -->
+  <div class="group-label">Leukonychia (White Nails)</div>
+  <div class="grid-2 cat-gen" id="group-leuk">
+    <button class="btn" onclick="tog(this,'leuk')">Absent</button>
+    <button class="btn" onclick="tog(this,'leuk')">White Spots on Nails</button>
+    <button class="btn" onclick="tog(this,'leuk')">Completely White Nails</button>
+  </div>
+
+  <!-- Edema -->
+  <div class="group-label">Edema</div>
+  <div class="grid-2 cat-gen" id="group-edema">
+    <button class="btn" onclick="tog(this,'edema')">Absent</button>
+    <button class="btn" onclick="tog(this,'edema')">Pitting Edema — Bilateral Legs</button>
+    <button class="btn" onclick="tog(this,'edema')">Pitting Edema — Sacral</button>
+    <button class="btn" onclick="tog(this,'edema')">Non-Pitting Edema</button>
+    <button class="btn" onclick="tog(this,'edema')">Facial / Periorbital Puffiness</button>
+    <button class="btn" onclick="tog(this,'edema')">Anasarca (Generalized)</button>
+    <button class="btn" onclick="tog(this,'edema')">Unilateral Leg Edema</button>
+  </div>
+
+  <!-- JVP -->
+  <div class="group-label">JVP (Jugular Venous Pressure)</div>
+  <div class="grid-2 cat-gen" id="group-jvp">
+    <button class="btn" onclick="tog(this,'jvp')">Normal / Not Raised</button>
+    <button class="btn" onclick="tog(this,'jvp')">Raised JVP</button>
+    <button class="btn" onclick="tog(this,'jvp')">Raised JVP — Non-Pulsatile</button>
+    <button class="btn" onclick="tog(this,'jvp')">Kussmaul Sign (inspiration rise)</button>
+  </div>
+
+  <!-- Thyroid -->
+  <div class="group-label">Thyroid Gland</div>
+  <div class="grid-2 cat-gen" id="group-thy">
+    <button class="btn" onclick="tog(this,'thy')">Not Enlarged</button>
+    <button class="btn" onclick="tog(this,'thy')">Diffuse Goiter (smooth)</button>
+    <button class="btn" onclick="tog(this,'thy')">Nodular Goiter</button>
+    <button class="btn" onclick="tog(this,'thy')">Bruit Over Thyroid</button>
+    <button class="btn" onclick="tog(this,'thy')">Tender Thyroid</button>
+    <button class="btn" onclick="tog(this,'thy')">Retrosternal Extension</button>
+  </div>
+
+  <!-- Pigmentation -->
+  <div class="group-label">Pigmentation</div>
+  <div class="grid-2 cat-gen" id="group-pig">
+    <button class="btn" onclick="tog(this,'pig')">None</button>
+    <button class="btn" onclick="tog(this,'pig')">Generalized Hyperpigmentation</button>
+    <button class="btn" onclick="tog(this,'pig')">Palmar Crease Pigmentation</button>
+    <button class="btn" onclick="tog(this,'pig')">Mucosal Pigmentation (mouth)</button>
+    <button class="btn" onclick="tog(this,'pig')">Sun-Exposed Areas (face/neck)</button>
+    <button class="btn" onclick="tog(this,'pig')">Butterfly / Malar Rash</button>
+    <button class="btn" onclick="tog(this,'pig')">Scratch Marks (uremia/itch)</button>
+  </div>
+
+  <hr class="divider">
+
+  <!-- Vitals -->
+  <div class="group-label">Vital Signs</div>
+  <div class="grid-2 cat-gen" id="group-vitals">
+    <button class="btn" onclick="tog(this,'vitals')">Tachycardia (&gt;100/min)</button>
+    <button class="btn" onclick="tog(this,'vitals')">Bradycardia (&lt;60/min)</button>
+    <button class="btn" onclick="tog(this,'vitals')">Irregular Pulse</button>
+    <button class="btn" onclick="tog(this,'vitals')">High Volume Pulse</button>
+    <button class="btn" onclick="tog(this,'vitals')">Low Volume Pulse</button>
+    <button class="btn" onclick="tog(this,'vitals')">Hypertension (BP &gt;140/90)</button>
+    <button class="btn" onclick="tog(this,'vitals')">Hypotension (BP &lt;90/60)</button>
+    <button class="btn" onclick="tog(this,'vitals')">Tachypnea (RR &gt;20/min)</button>
+    <button class="btn" onclick="tog(this,'vitals')">Febrile (&gt;37.5°C)</button>
+    <button class="btn" onclick="tog(this,'vitals')">High Fever (&gt;39°C)</button>
+    <button class="btn" onclick="tog(this,'vitals')">Hypertension in Pregnancy (≥140/90)</button>
+    <button class="btn" onclick="tog(this,'vitals')">Postural Hypotension</button>
+  </div>
+
+  <!-- Other General Signs -->
+  <div class="group-label">Other Important General Signs</div>
+  <div class="grid-2 cat-gen" id="group-other-gen">
+    <button class="btn" onclick="tog(this,'other-gen')">Lymphadenopathy (palpable)</button>
+    <button class="btn" onclick="tog(this,'other-gen')">Dehydration (dry tongue/turgor)</button>
+    <button class="btn" onclick="tog(this,'other-gen')">Bony Tenderness</button>
+    <button class="btn" onclick="tog(this,'other-gen')">Gynecomastia</button>
+    <button class="btn" onclick="tog(this,'other-gen')">Spider Angioma</button>
+    <button class="btn" onclick="tog(this,'other-gen')">Loss of Pubic / Axillary Hair</button>
+    <button class="btn" onclick="tog(this,'other-gen')">Exophthalmos / Proptosis</button>
+    <button class="btn" onclick="tog(this,'other-gen')">Lid Lag / Lid Retraction</button>
+    <button class="btn" onclick="tog(this,'other-gen')">Tremor (hands / tongue)</button>
+    <button class="btn" onclick="tog(this,'other-gen')">Parotid Enlargement</button>
+    <button class="btn" onclick="tog(this,'other-gen')">Palmar Erythema</button>
+    <button class="btn" onclick="tog(this,'other-gen')">Dupuytren's Contracture</button>
+    <button class="btn" onclick="tog(this,'other-gen')">Pretibial Myxedema</button>
+    <button class="btn" onclick="tog(this,'other-gen')">Acanthosis Nigricans</button>
+    <button class="btn" onclick="tog(this,'other-gen')">Xanthelasma / Xanthomas</button>
+    <button class="btn" onclick="tog(this,'other-gen')">Herpes Labialis</button>
+    <button class="btn" onclick="tog(this,'other-gen')">Carotid Bruit</button>
+    <button class="btn" onclick="tog(this,'other-gen')">Peripheral Oedema (Pregnancy)</button>
+    <button class="btn" onclick="tog(this,'other-gen')">Ankle Clonus</button>
+    <button class="btn" onclick="tog(this,'other-gen')">Hyperreflexia (Brisk DTRs)</button>
+    <button class="btn" onclick="tog(this,'other-gen')">Fundoscopy — Hypertensive Changes</button>
+    <button class="btn" onclick="tog(this,'other-gen')">Fundoscopy — Diabetic Retinopathy</button>
+    <button class="btn" onclick="tog(this,'other-gen')">Fundoscopy — Papilledema</button>
+    <button class="btn" onclick="tog(this,'other-gen')">Pes Cavus</button>
+    <button class="btn" onclick="tog(this,'other-gen')">High Arched Palate</button>
+    <button class="btn" onclick="tog(this,'other-gen')">Macroglossia</button>
+    <button class="btn" onclick="tog(this,'other-gen')">Proteinuria (Dipstick ≥2+)</button>
+  </div>
+
+</div><!-- /gpe -->
+
+
+<!-- ═══════════════ RESPIRATORY TAB ═══════════════ -->
+<div class="section" id="resp">
+  <div class="sec-head">🫁 Respiratory System <span>Inspection → Palpation → Percussion → Auscultation</span></div>
+
+  <div class="group-label">Inspection</div>
+  <div class="grid-2 cat-resp" id="group-resp-insp">
+    <button class="btn" onclick="tog(this,'resp')">Barrel-Shaped Chest</button>
+    <button class="btn" onclick="tog(this,'resp')">Flattening of Chest (unilateral)</button>
+    <button class="btn" onclick="tog(this,'resp')">Kyphoscoliosis</button>
+    <button class="btn" onclick="tog(this,'resp')">Drooping of Shoulder</button>
+    <button class="btn" onclick="tog(this,'resp')">Restricted Chest Movement</button>
+    <button class="btn" onclick="tog(this,'resp')">Intercostal Space — Fullness</button>
+    <button class="btn" onclick="tog(this,'resp')">Intercostal Space — Indrawing</button>
+    <button class="btn" onclick="tog(this,'resp')">Suprasternal/Supraclavicular Excavation</button>
+    <button class="btn" onclick="tog(this,'resp')">Prominent Accessory Muscles</button>
+    <button class="btn" onclick="tog(this,'resp')">Visible Veins / Engorged</button>
+  </div>
+
+  <div class="group-label">Palpation</div>
+  <div class="grid-2 cat-resp" id="group-resp-palp">
+    <button class="btn" onclick="tog(this,'resp')">Trachea — Central</button>
+    <button class="btn" onclick="tog(this,'resp')">Trachea Shifted — Opposite Side</button>
+    <button class="btn" onclick="tog(this,'resp')">Trachea Shifted — Same Side</button>
+    <button class="btn" onclick="tog(this,'resp')">Reduced Chest Expansion</button>
+    <button class="btn" onclick="tog(this,'resp')">Decreased Vocal Fremitus</button>
+    <button class="btn" onclick="tog(this,'resp')">Increased Vocal Fremitus</button>
+    <button class="btn" onclick="tog(this,'resp')">Tracheal Tug Present</button>
+  </div>
+
+  <div class="group-label">Percussion</div>
+  <div class="grid-2 cat-resp" id="group-resp-perc">
+    <button class="btn" onclick="tog(this,'resp')">Stony Dullness (effusion)</button>
+    <button class="btn" onclick="tog(this,'resp')">Dull Percussion Note</button>
+    <button class="btn" onclick="tog(this,'resp')">Hyperresonant (emphysema/PTX)</button>
+    <button class="btn" onclick="tog(this,'resp')">Normal Resonance</button>
+    <button class="btn" onclick="tog(this,'resp')">Obliterated Liver / Cardiac Dullness</button>
+  </div>
+
+  <div class="group-label">Auscultation</div>
+  <div class="grid-2 cat-resp" id="group-resp-ausc">
+    <button class="btn" onclick="tog(this,'resp')">Vesicular Breath Sounds (normal)</button>
+    <button class="btn" onclick="tog(this,'resp')">Bronchial Breath Sounds</button>
+    <button class="btn" onclick="tog(this,'resp')">Absent Breath Sounds</button>
+    <button class="btn" onclick="tog(this,'resp')">Reduced Breath Sounds</button>
+    <button class="btn" onclick="tog(this,'resp')">Wheeze / Rhonchi (bilateral)</button>
+    <button class="btn" onclick="tog(this,'resp')">Coarse Crepitations / Crackles</button>
+    <button class="btn" onclick="tog(this,'resp')">Fine Crepitations (basal)</button>
+    <button class="btn" onclick="tog(this,'resp')">Pleural Rub</button>
+    <button class="btn" onclick="tog(this,'resp')">Post-Tussive Crepitations</button>
+    <button class="btn" onclick="tog(this,'resp')">Decreased Vocal Resonance</button>
+    <button class="btn" onclick="tog(this,'resp')">Increased Vocal Resonance</button>
+    <button class="btn" onclick="tog(this,'resp')">Bilateral Crepitations (Basal)</button>
+  </div>
+
+</div><!-- /resp -->
+
+
+<!-- ═══════════════ CVS TAB ═══════════════ -->
+<div class="section" id="cvs">
+  <div class="sec-head">❤️ Cardiovascular System <span>Full cardiac examination</span></div>
+
+  <div class="group-label">Apex Beat</div>
+  <div class="grid-2 cat-cvs" id="group-cvs-apex">
+    <button class="btn" onclick="tog(this,'cvs')">Normal Position (5th ICS MCL)</button>
+    <button class="btn" onclick="tog(this,'cvs')">Displaced Laterally</button>
+    <button class="btn" onclick="tog(this,'cvs')">Tapping Apex Beat</button>
+    <button class="btn" onclick="tog(this,'cvs')">Heaving / Thrusting Apex</button>
+    <button class="btn" onclick="tog(this,'cvs')">Impalpable Apex</button>
+  </div>
+
+  <div class="group-label">Heart Sounds</div>
+  <div class="grid-2 cat-cvs" id="group-cvs-sound">
+    <button class="btn" onclick="tog(this,'cvs')">Normal S1, S2</button>
+    <button class="btn" onclick="tog(this,'cvs')">Loud S1 (mitral stenosis)</button>
+    <button class="btn" onclick="tog(this,'cvs')">Soft S1</button>
+    <button class="btn" onclick="tog(this,'cvs')">Loud P2 (pulm. HTN)</button>
+    <button class="btn" onclick="tog(this,'cvs')">S3 Gallop (heart failure)</button>
+    <button class="btn" onclick="tog(this,'cvs')">S4 Gallop</button>
+    <button class="btn" onclick="tog(this,'cvs')">Opening Snap</button>
+    <button class="btn" onclick="tog(this,'cvs')">Ejection Click</button>
+    <button class="btn" onclick="tog(this,'cvs')">Pericardial Rub</button>
+    <button class="btn" onclick="tog(this,'cvs')">Muffled Heart Sounds</button>
+  </div>
+
+  <div class="group-label">Murmurs</div>
+  <div class="grid-2 cat-cvs" id="group-cvs-mur">
+    <button class="btn" onclick="tog(this,'cvs')">Pansystolic Murmur (apex→axilla)</button>
+    <button class="btn" onclick="tog(this,'cvs')">Mid-Diastolic Murmur (apex)</button>
+    <button class="btn" onclick="tog(this,'cvs')">Ejection Systolic (aortic area)</button>
+    <button class="btn" onclick="tog(this,'cvs')">Early Diastolic (aortic area)</button>
+    <button class="btn" onclick="tog(this,'cvs')">Continuous Murmur</button>
+    <button class="btn" onclick="tog(this,'cvs')">Murmur — Radiation to Neck</button>
+    <button class="btn" onclick="tog(this,'cvs')">Murmur — Radiation to Axilla</button>
+  </div>
+
+  <div class="group-label">Other CVS Signs</div>
+  <div class="grid-2 cat-cvs" id="group-cvs-other">
+    <button class="btn" onclick="tog(this,'cvs')">Bilateral Basal Crepitations (LVF)</button>
+    <button class="btn" onclick="tog(this,'cvs')">Collapsing / Waterhammer Pulse</button>
+    <button class="btn" onclick="tog(this,'cvs')">Radio-Femoral Delay</button>
+    <button class="btn" onclick="tog(this,'cvs')">Peripheral Pulses Absent</button>
+    <button class="btn" onclick="tog(this,'cvs')">Pulsus Paradoxus</button>
+    <button class="btn" onclick="tog(this,'cvs')">Fixed Split S2</button>
+    <button class="btn" onclick="tog(this,'cvs')">Right Parasternal Heave</button>
+    <button class="btn" onclick="tog(this,'cvs')">Double Apical Impulse</button>
+    <button class="btn" onclick="tog(this,'cvs')">Jerky / Bifid Pulse</button>
+    <button class="btn" onclick="tog(this,'cvs')">Narrow Pulse Pressure</button>
+    <button class="btn" onclick="tog(this,'cvs')">Wide Pulse Pressure</button>
+    <button class="btn" onclick="tog(this,'cvs')">Carotid Thrill</button>
+  </div>
+
+</div><!-- /cvs -->
+
+
+<!-- ═══════════════ ABDOMEN TAB ═══════════════ -->
+<div class="section" id="abd">
+  <div class="sec-head">🔵 Abdominal Examination <span>Inspect → Palpate → Percuss → Auscultate</span></div>
+
+  <div class="group-label">Inspection</div>
+  <div class="grid-2 cat-abd" id="group-abd-insp">
+    <button class="btn" onclick="tog(this,'abd')">Distended Abdomen</button>
+    <button class="btn" onclick="tog(this,'abd')">Scaphoid / Sunken Abdomen</button>
+    <button class="btn" onclick="tog(this,'abd')">Engorged Abdominal Veins</button>
+    <button class="btn" onclick="tog(this,'abd')">Visible Peristalsis</button>
+    <button class="btn" onclick="tog(this,'abd')">Visible Pulsation (aortic)</button>
+    <button class="btn" onclick="tog(this,'abd')">Umbilicus — Everted</button>
+    <button class="btn" onclick="tog(this,'abd')">Striae</button>
+    <button class="btn" onclick="tog(this,'abd')">Caput Medusae</button>
+    <button class="btn" onclick="tog(this,'abd')">Fullness of Flanks</button>
+    <button class="btn" onclick="tog(this,'abd')">Scar Marks</button>
+  </div>
+
+  <div class="group-label">Palpation</div>
+  <div class="grid-2 cat-abd" id="group-abd-palp">
+    <button class="btn" onclick="tog(this,'abd')">Hepatomegaly (cm below costal)</button>
+    <button class="btn" onclick="tog(this,'abd')">Liver — Tender</button>
+    <button class="btn" onclick="tog(this,'abd')">Liver — Hard / Irregular (malignant)</button>
+    <button class="btn" onclick="tog(this,'abd')">Liver — Soft / Smooth</button>
+    <button class="btn" onclick="tog(this,'abd')">Splenomegaly</button>
+    <button class="btn" onclick="tog(this,'abd')">Hepatosplenomegaly</button>
+    <button class="btn" onclick="tog(this,'abd')">Ballotable Kidneys</button>
+    <button class="btn" onclick="tog(this,'abd')">Palpable Mass</button>
+    <button class="btn" onclick="tog(this,'abd')">Fluid Thrill (ascites)</button>
+    <button class="btn" onclick="tog(this,'abd')">Abdominal Tenderness</button>
+    <button class="btn" onclick="tog(this,'abd')">Guarding / Rigidity</button>
+    <button class="btn" onclick="tog(this,'abd')">Palpable Gallbladder</button>
+  </div>
+
+  <div class="group-label">Percussion &amp; Auscultation</div>
+  <div class="grid-2 cat-abd" id="group-abd-pa">
+    <button class="btn" onclick="tog(this,'abd')">Shifting Dullness (ascites)</button>
+    <button class="btn" onclick="tog(this,'abd')">Dullness over Spleen / Liver</button>
+    <button class="btn" onclick="tog(this,'abd')">Bowel Sounds — Absent</button>
+    <button class="btn" onclick="tog(this,'abd')">Bowel Sounds — Hyperactive</button>
+    <button class="btn" onclick="tog(this,'abd')">Hepatic Bruit</button>
+    <button class="btn" onclick="tog(this,'abd')">Renal Bruit</button>
+    <button class="btn" onclick="tog(this,'abd')">Epigastric Tenderness</button>
+    <button class="btn" onclick="tog(this,'abd')">RIF Tenderness</button>
+    <button class="btn" onclick="tog(this,'abd')">Board-Like Rigidity (Peritonism)</button>
+    <button class="btn" onclick="tog(this,'abd')">Rebound Tenderness</button>
+    <button class="btn" onclick="tog(this,'abd')">Succussion Splash</button>
+    <button class="btn" onclick="tog(this,'abd')">Mass in Right Iliac Fossa</button>
+  </div>
+
+</div><!-- /abd -->
+
+
+<!-- ═══════════════ RENAL TAB ═══════════════ -->
+<div class="section" id="renal">
+  <div class="sec-head">💧 Renal / Genitourinary System</div>
+
+  <div class="group-label">Renal-Specific Symptoms (if not selected in Hx)</div>
+  <div class="grid-2 cat-renal" id="group-renal-sx">
+    <button class="btn" onclick="tog(this,'renal')">Oliguria / Anuria</button>
+    <button class="btn" onclick="tog(this,'renal')">Polyuria / Nocturia</button>
+    <button class="btn" onclick="tog(this,'renal')">Hematuria (painless)</button>
+    <button class="btn" onclick="tog(this,'renal')">Frothy Urine</button>
+    <button class="btn" onclick="tog(this,'renal')">Dysuria / Burning Urination</button>
+    <button class="btn" onclick="tog(this,'renal')">Urinary Frequency</button>
+  </div>
+
+  <div class="group-label">Renal Examination Findings</div>
+  <div class="grid-2 cat-renal" id="group-renal-ex">
+    <button class="btn" onclick="tog(this,'renal')">Puffy Face / Facial Puffiness</button>
+    <button class="btn" onclick="tog(this,'renal')">Periorbital Edema (morning)</button>
+    <button class="btn" onclick="tog(this,'renal')">Bilateral Pitting Pedal Edema</button>
+    <button class="btn" onclick="tog(this,'renal')">Ballotable Kidneys (bilateral)</button>
+    <button class="btn" onclick="tog(this,'renal')">Enlarged Kidney — Unilateral</button>
+    <button class="btn" onclick="tog(this,'renal')">Renal Angle Tenderness</button>
+    <button class="btn" onclick="tog(this,'renal')">Pallor (renal anemia)</button>
+    <button class="btn" onclick="tog(this,'renal')">Uremic Fetor (ammoniacal breath)</button>
+    <button class="btn" onclick="tog(this,'renal')">Scratch Marks (uremic pruritus)</button>
+    <button class="btn" onclick="tog(this,'renal')">Hypertension (renal)</button>
+    <button class="btn" onclick="tog(this,'renal')">Pericardial Rub (uremia)</button>
+    <button class="btn" onclick="tog(this,'renal')">Scar of Transplanted Kidney</button>
+    <button class="btn" onclick="tog(this,'renal')">AV Fistula / Dialysis Access</button>
+  </div>
+
+  <div class="group-label">Urinalysis Findings (if done bedside)</div>
+  <div class="grid-2 cat-renal" id="group-renal-urine">
+    <button class="btn" onclick="tog(this,'renal')">Proteinuria (albuminuria)</button>
+    <button class="btn" onclick="tog(this,'renal')">Glycosuria</button>
+    <button class="btn" onclick="tog(this,'renal')">RBC Casts (nephritic)</button>
+    <button class="btn" onclick="tog(this,'renal')">Heavy Proteinuria (nephrotic)</button>
+    <button class="btn" onclick="tog(this,'renal')">Catheter In Situ</button>
+    <button class="btn" onclick="tog(this,'renal')">Dialysis Catheter / Access Site</button>
+    <button class="btn" onclick="tog(this,'renal')">Generalised Oedema (Nephrotic)</button>
+  </div>
+
+</div><!-- /renal -->
+
+
+<!-- ═══════════════ RHEUMATOLOGY TAB ═══════════════ -->
+<div class="section" id="rheum">
+  <div class="sec-head">🦴 Rheumatology / Locomotor System</div>
+
+  <div class="group-label">Joint Inspection</div>
+  <div class="grid-2 cat-rheum" id="group-rheum-insp">
+    <button class="btn" onclick="tog(this,'rheum')">Swollen Small Joints (hands/feet)</button>
+    <button class="btn" onclick="tog(this,'rheum')">Swollen Large Joints (knee/hip)</button>
+    <button class="btn" onclick="tog(this,'rheum')">Joint Deformity</button>
+    <button class="btn" onclick="tog(this,'rheum')">Swan Neck Deformity</button>
+    <button class="btn" onclick="tog(this,'rheum')">Boutonnière Deformity</button>
+    <button class="btn" onclick="tog(this,'rheum')">Ulnar Deviation (wrist)</button>
+    <button class="btn" onclick="tog(this,'rheum')">Joint Redness / Erythema</button>
+    <button class="btn" onclick="tog(this,'rheum')">Muscle Wasting (periarticular)</button>
+    <button class="btn" onclick="tog(this,'rheum')">Psoriatic Skin Patches</button>
+  </div>
+
+  <div class="group-label">Joint Palpation</div>
+  <div class="grid-2 cat-rheum" id="group-rheum-palp">
+    <button class="btn" onclick="tog(this,'rheum')">Joint Warmth</button>
+    <button class="btn" onclick="tog(this,'rheum')">Joint Tenderness</button>
+    <button class="btn" onclick="tog(this,'rheum')">Joint Effusion / Fluctuation</button>
+    <button class="btn" onclick="tog(this,'rheum')">Crepitus on Movement</button>
+    <button class="btn" onclick="tog(this,'rheum')">Restricted Range of Motion</button>
+    <button class="btn" onclick="tog(this,'rheum')">Subcutaneous Nodules</button>
+    <button class="btn" onclick="tog(this,'rheum')">Tophi (gouty deposits)</button>
+    <button class="btn" onclick="tog(this,'rheum')">Sacroiliac Joint Tenderness</button>
+  </div>
+
+  <div class="group-label">Spine &amp; Extra-Articular</div>
+  <div class="grid-2 cat-rheum" id="group-rheum-spine">
+    <button class="btn" onclick="tog(this,'rheum')">Kyphosis / Scoliosis / Lordosis</button>
+    <button class="btn" onclick="tog(this,'rheum')">Gibbus (TB spine)</button>
+    <button class="btn" onclick="tog(this,'rheum')">Vertebral Tenderness</button>
+    <button class="btn" onclick="tog(this,'rheum')">Restricted Spinal Movement</button>
+    <button class="btn" onclick="tog(this,'rheum')">Butterfly Rash (lupus)</button>
+    <button class="btn" onclick="tog(this,'rheum')">Raynaud's Phenomenon</button>
+    <button class="btn" onclick="tog(this,'rheum')">Sclerodactyly</button>
+    <button class="btn" onclick="tog(this,'rheum')">Oral Ulcers</button>
+    <button class="btn" onclick="tog(this,'rheum')">Heliotrope Rash (Periorbital)</button>
+    <button class="btn" onclick="tog(this,'rheum')">Gottron Papules (Knuckles)</button>
+    <button class="btn" onclick="tog(this,'rheum')">Telangiectasia</button>
+    <button class="btn" onclick="tog(this,'rheum')">Calcinosis Cutis</button>
+    <button class="btn" onclick="tog(this,'rheum')">Uveitis / Red Eye</button>
+  </div>
+
+</div><!-- /rheum -->
+
+
+<!-- ═══════════════ NEURO TAB ═══════════════ -->
+<div class="section" id="neuro">
+  <div class="sec-head">🧠 Nervous System <span>HPF → Motor → Sensory → Reflexes → CN</span></div>
+
+  <div class="group-label">Higher Psychic Functions</div>
+  <div class="grid-2 cat-neuro" id="group-neuro-hpf">
+    <button class="btn" onclick="tog(this,'neuro')">Conscious / Alert</button>
+    <button class="btn" onclick="tog(this,'neuro')">Confused / Disoriented</button>
+    <button class="btn" onclick="tog(this,'neuro')">Drowsy / Stuporous</button>
+    <button class="btn" onclick="tog(this,'neuro')">Unconscious / Comatose</button>
+    <button class="btn" onclick="tog(this,'neuro')">Memory Impairment</button>
+    <button class="btn" onclick="tog(this,'neuro')">Speech — Dysarthria</button>
+    <button class="btn" onclick="tog(this,'neuro')">Speech — Aphasia / Dysphasia</button>
+    <button class="btn" onclick="tog(this,'neuro')">Hallucinations</button>
+  </div>
+
+  <div class="group-label">Motor System</div>
+  <div class="grid-2 cat-neuro" id="group-neuro-motor">
+    <button class="btn" onclick="tog(this,'neuro')">Hemiplegia / Hemiparesis</button>
+    <button class="btn" onclick="tog(this,'neuro')">Paraplegia / Paraparesis</button>
+    <button class="btn" onclick="tog(this,'neuro')">Monoplegia</button>
+    <button class="btn" onclick="tog(this,'neuro')">Muscle Wasting</button>
+    <button class="btn" onclick="tog(this,'neuro')">Increased Tone (spasticity)</button>
+    <button class="btn" onclick="tog(this,'neuro')">Decreased Tone (flaccidity)</button>
+    <button class="btn" onclick="tog(this,'neuro')">Tremor — Resting</button>
+    <button class="btn" onclick="tog(this,'neuro')">Tremor — Intention</button>
+    <button class="btn" onclick="tog(this,'neuro')">Fasciculations</button>
+    <button class="btn" onclick="tog(this,'neuro')">Abnormal Gait</button>
+    <button class="btn" onclick="tog(this,'neuro')">Coordination Impaired (ataxia)</button>
+    <button class="btn" onclick="tog(this,'neuro')">Romberg Positive</button>
+  </div>
+
+  <div class="group-label">Reflexes</div>
+  <div class="grid-2 cat-neuro" id="group-neuro-ref">
+    <button class="btn" onclick="tog(this,'neuro')">Brisk Deep Reflexes (UMN)</button>
+    <button class="btn" onclick="tog(this,'neuro')">Absent Deep Reflexes (LMN)</button>
+    <button class="btn" onclick="tog(this,'neuro')">Babinski Extensor (UMN)</button>
+    <button class="btn" onclick="tog(this,'neuro')">Clonus Present</button>
+    <button class="btn" onclick="tog(this,'neuro')">Abdominal Reflex Absent</button>
+  </div>
+
+  <div class="group-label">Sensory &amp; Meningeal</div>
+  <div class="grid-2 cat-neuro" id="group-neuro-sens">
+    <button class="btn" onclick="tog(this,'neuro')">Glove-Stocking Sensory Loss</button>
+    <button class="btn" onclick="tog(this,'neuro')">Hemisensory Loss</button>
+    <button class="btn" onclick="tog(this,'neuro')">Vibration Sense Impaired</button>
+    <button class="btn" onclick="tog(this,'neuro')">Neck Rigidity</button>
+    <button class="btn" onclick="tog(this,'neuro')">Kernig's Sign Positive</button>
+    <button class="btn" onclick="tog(this,'neuro')">Brudzinski's Sign Positive</button>
+    <button class="btn" onclick="tog(this,'neuro')">Photophobia</button>
+  </div>
+
+  <div class="group-label">Cranial Nerve Signs</div>
+  <div class="grid-2 cat-neuro" id="group-neuro-cn">
+    <button class="btn" onclick="tog(this,'neuro')">Ptosis (III)</button>
+    <button class="btn" onclick="tog(this,'neuro')">Diplopia (III, IV, VI)</button>
+    <button class="btn" onclick="tog(this,'neuro')">Nystagmus (VIII / cerebellum)</button>
+    <button class="btn" onclick="tog(this,'neuro')">Facial Palsy (VII)</button>
+    <button class="btn" onclick="tog(this,'neuro')">Hoarseness / Bovine Cough (X)</button>
+    <button class="btn" onclick="tog(this,'neuro')">Tongue Wasting / Fasciculation (XII)</button>
+    <button class="btn" onclick="tog(this,'neuro')">Papilledema (raised ICP)</button>
+    <button class="btn" onclick="tog(this,'neuro')">Sensory Level (Cord)</button>
+    <button class="btn" onclick="tog(this,'neuro')">Proximal Muscle Weakness</button>
+    <button class="btn" onclick="tog(this,'neuro')">No Sensory Loss (Pure Motor)</button>
+    <button class="btn" onclick="tog(this,'neuro')">Normal Reflexes</button>
+    <button class="btn" onclick="tog(this,'neuro')">Reduced Tone (Flaccid Paraplegia)</button>
+    <button class="btn" onclick="tog(this,'neuro')">Kayser-Fleischer Ring</button>
+    <button class="btn" onclick="tog(this,'neuro')">Bitemporal Hemianopia</button>
+  </div>
+
+</div><!-- /neuro -->
+
+<!-- ═══════════════ DISEASE LIBRARY ═══════════════ -->
+<div class="section" id="lib">
+  <div class="sec-head">📚 Disease Library <span>Abdullah Long Cases — All Systems</span></div>
+
+  <div class="lib-search-wrap">
+    <input class="lib-search" type="text" id="libSearch" placeholder="🔍  Search disease name…" oninput="filterLib()">
+    <div class="lib-filter-row">
+      <button class="lib-filter active" onclick="filterSys('ALL',this)">All</button>
+      <button class="lib-filter" onclick="filterSys('Resp',this)">Resp</button>
+      <button class="lib-filter" onclick="filterSys('CVS',this)">CVS</button>
+      <button class="lib-filter" onclick="filterSys('GIT',this)">GIT</button>
+      <button class="lib-filter" onclick="filterSys('Hepato',this)">Hepato</button>
+      <button class="lib-filter" onclick="filterSys('Neph',this)">Neph</button>
+      <button class="lib-filter" onclick="filterSys('Rheum',this)">Rheum</button>
+      <button class="lib-filter" onclick="filterSys('Neuro',this)">Neuro</button>
+      <button class="lib-filter" onclick="filterSys('Endo',this)">Endo</button>
+      <button class="lib-filter" onclick="filterSys('Hemato',this)">Hemato</button>
+      <button class="lib-filter" onclick="filterSys('Derm',this)">Derm</button>
+        <button class="lib-filter" onclick="filterSys('Infect',this)">Infect</button>
+    </div>
+    <div class="lib-count" id="libCount"></div>
+  </div>
+
+  <div id="lib-cards"></div>
+</div>
+
+<!-- ═══════════════ QUESTIONS (now labeled History) ═══════════════ -->
+<div class="section" id="questions">
+  <div class="sec-head">❓ History <span>From ABM Abdullah Long Cases</span></div>
+  <div id="questions-type-buttons" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-bottom:4px;"></div>
+  <div id="questions-subtype-area"></div>
+  <div id="questions-content-area"></div>
+</div>
+
+<!-- ═══════════════ RESULTS ═══════════════ -->
+<div id="results-section">
+  <div class="results-title">🔬 Differential Diagnosis <span style="font-size:11px;color:var(--muted);font-weight:400;margin-left:auto;" id="results-subtitle"></span></div>
+  <div id="results-body"></div>
+  <button class="btn-save-case" id="btn-save-case" style="display:none;" onclick="openSaveModal()">💾 Save Case</button>
+</div>
+
+<!-- ═══════════════ PEDIATRICS (IMCI) — STUDY/REFERENCE ONLY ═══════════════ -->
+<div class="section" id="peds">
+  <div class="sec-head">🧒 Pediatrics <span>IMCI Student's Handbook — Study Reference</span></div>
+
+  <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;">
+    <button class="btn" style="flex:1;min-width:120px;" id="peds-tab-young" onclick="renderPediatrics('youngInfant')">👶 Young Infant (0d–2mo)</button>
+    <button class="btn" style="flex:1;min-width:120px;" id="peds-tab-child" onclick="renderPediatrics('child')">🧒 Child (2mo–5yr)</button>
+    <button class="btn" style="flex:1;min-width:120px;" id="peds-tab-theory" onclick="renderPediatrics('generalTheory')">📖 General Theory</button>
+  </div>
+
+  <div id="peds-content"></div>
+</div>
+
+<!-- ═══════════════ MY CASES ═══════════════ -->
+<div class="section" id="cases">
+  <div class="sec-head">📁 My Cases <span>Saved Clinical Sessions</span></div>
+
+  <!-- Case list view -->
+  <div id="cases-list-view">
+
+    <!-- Stats strip -->
+    <div class="cv-stats-strip" id="cv-stats-strip"></div>
+
+    <!-- Search bar -->
+    <div class="cv-search-wrap">
+      <span class="cv-search-icon">🔍</span>
+      <input type="text" id="cv-search" placeholder="Search by title or diagnosis..."
+             oninput="renderCases()" autocomplete="off">
+    </div>
+
+    <!-- System filters -->
+    <div class="cv-filters" id="cv-filters"></div>
+
+    <!-- Results count -->
+    <div class="cv-results-count" id="cv-results-count"></div>
+
+    <!-- Case list -->
+    <div id="cases-list"></div>
+  </div>
+
+  <!-- Case detail view -->
+  <div id="cases-detail-view" class="case-detail">
+    <div class="case-detail-back" onclick="showCasesList()">← Back to My Cases</div>
+    <div class="case-detail-title" id="cv-detail-title"></div>
+    <div class="case-detail-date" id="cv-detail-date"></div>
+
+    <div class="case-section-label">Final Diagnosis</div>
+    <div id="cv-detail-dx" style="font-size:14px;font-weight:700;color:var(--accent);margin-bottom:4px;"></div>
+
+    <div class="case-section-label">Chief Complaint</div>
+    <div id="cv-detail-cc" style="font-size:13px;color:var(--text);"></div>
+
+    <div class="case-section-label">Selected History Findings</div>
+    <div id="cv-detail-history"></div>
+
+    <div class="case-section-label">Selected Examination Findings</div>
+    <div id="cv-detail-exam"></div>
+
+    <div class="case-section-label">Differential Diagnoses</div>
+    <div id="cv-detail-ddx"></div>
+
+    <div class="case-section-label">Personal Notes</div>
+    <div id="cv-detail-notes" class="case-notes-box"></div>
+
+    <div class="case-action-btns">
+      <button class="cv-btn-delete" id="cv-delete-btn" onclick="deleteCaseFromDetail()">🗑️ Delete</button>
+      <button class="cv-btn-save" style="flex:2;" onclick="openEditModal()">✏️ Edit Case</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ SAVE CASE MODAL ═══════════════ -->
+<div class="cv-overlay" id="cv-overlay">
+  <div class="cv-modal">
+    <h3>💾 Save Case</h3>
+    <div class="cv-field">
+      <label>Case Title <span style="color:var(--danger)">*</span></label>
+      <input type="text" id="cv-title" placeholder="e.g. Dyspnea with bilateral oedema" maxlength="100">
+    </div>
+    <div class="cv-field">
+      <label>Final Diagnosis (optional)</label>
+      <input type="text" id="cv-final-dx" placeholder="e.g. CCF" maxlength="100">
+    </div>
+    <div class="cv-field">
+      <label>Personal Notes (optional)</label>
+      <textarea id="cv-notes" rows="3" placeholder="What did you learn? Any clinical pearls?"></textarea>
+    </div>
+    <div class="cv-modal-btns">
+      <button class="cv-btn-cancel" onclick="closeSaveModal()">Cancel</button>
+      <button class="cv-btn-save" onclick="confirmSaveCase()">💾 Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ EDIT CASE MODAL ═══════════════ -->
+<div class="cv-overlay" id="cv-edit-overlay">
+  <div class="cv-modal">
+    <h3>✏️ Edit Case</h3>
+    <div class="cv-field">
+      <label>Case Title <span style="color:var(--danger)">*</span></label>
+      <input type="text" id="cv-edit-title" maxlength="100">
+    </div>
+    <div class="cv-field">
+      <label>Final Diagnosis</label>
+      <input type="text" id="cv-edit-final-dx" maxlength="100">
+    </div>
+    <div class="cv-field">
+      <label>Personal Notes</label>
+      <textarea id="cv-edit-notes" rows="3"></textarea>
+    </div>
+    <div style="font-size:10px;color:var(--muted);margin-bottom:12px;">
+      ⓘ Selected findings and DDx results cannot be edited — they reflect what was recorded at the time.
+    </div>
+    <div class="cv-modal-btns">
+      <button class="cv-btn-cancel" onclick="closeEditModal()">Cancel</button>
+      <button class="cv-btn-save" onclick="confirmEditCase()">✏️ Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- Fixed action bar -->
+<div class="action-bar">
+  <button class="btn-reset" onclick="resetAll()">RESET</button>
+  <button class="btn-diagnose" onclick="diagnose()">⚡ GENERATE DDx</button>
+</div>
+
+<!-- ═══ DATA FILES ═══ -->
+<script src="data/ddx.js"></script>
+<script src="data/diseases.js"></script>
+<script src="data/sysexam.js"></script>
+<script src="data/mgmt.js"></script>
+<script src="data/pediatrics.js"></script>
+
+<!-- ═══ APPLICATION LOGIC ═══ -->
+<script src="js/app.js"></script>
+<script src="js/casevault.js"></script>
+
+</body>
+</html>
